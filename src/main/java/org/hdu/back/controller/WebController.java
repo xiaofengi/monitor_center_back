@@ -72,7 +72,7 @@ public class WebController extends BaseController{
      * @param depth 层数
      * @param count 总量
      * @param domainFile 域名文件
-     * @param limitType init仅限初始 all限全部
+     * @param limitType current限当前域名 list限制列表域名 all不限
      * @return
      */
     @RequestMapping("/startSubCrawl")
@@ -149,9 +149,7 @@ public class WebController extends BaseController{
         List<Map> jobMsgLs = jobMsgMapper.getJobMsg(jobId);
         if(jobMsgLs.isEmpty()){
         	return buildResult(CODE_BUSINESS_ERROR, "爬虫启动失败，数据库监控状态信息为空");
-        }else if(MonitorExecute.dailyId != (int)jobMsgLs.get(0).get("dailyId")) {
-        	return buildResult(CODE_BUSINESS_ERROR, "爬虫未启动");
-		}else {
+        }else {
             Map<String, Object> data = new HashMap<>();
             JobDaily jobDaily = jobDailyMapper.getLastDailyInfo(jobId);
             if(jobDaily.getEndTime() == null){

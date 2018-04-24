@@ -375,7 +375,7 @@ public class BaiduSearchRsProcessor implements Processor{
 				String title = a.text();
 				if(href.startsWith("http") && title.contains(page.meta("keyword"))) { //过滤与关键字无关的超链接
 					try {
-						if(limitedDomain(new URL(href).getHost())){ //过滤域名
+						if(limitedDomain(new URL(href).getHost(), page)){ //过滤域名
 							continue;
 						}
 					} catch (MalformedURLException e) {
@@ -399,12 +399,16 @@ public class BaiduSearchRsProcessor implements Processor{
 	 * 根据用户输入域名地址列表，判断是否限制域名
 	 * @param domain
 	 */
-	private boolean limitedDomain(String domain){
+	private boolean limitedDomain(String domain, Page page){
 		if(HduCrawler.domainList != null){ //限制域名
 			switch (HduCrawler.limitType) {
-				case "init": //限初始
-					break;
-				case "all": //限全部
+				case "current": //限当前域名
+					if(page.meta("domain").equals(domain)){
+						return false;
+					}else {
+						return true;
+					}
+				case "list": //限列表
 					boolean isContains = false;
 					for(String dm : HduCrawler.domainList){
 						if(domain.equals(dm)){

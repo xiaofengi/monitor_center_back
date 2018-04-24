@@ -8,7 +8,8 @@
 	    	wpd.domain,
 	    	wpd.title,
 	    	wpd.author,
-	    	wpd.keyword
+	    	wpd.keyword,
+	    	wpd.content
 	    from
 	    	search_crawler.web_page_detail wpd
 	    	<where>    
