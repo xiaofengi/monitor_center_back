@@ -86,17 +86,13 @@ public class HduCrawler extends BreadthCrawler implements ApplicationContextAwar
 	}
 
 	@Override
-	public void execute(CrawlDatum datum, CrawlDatums next) throws Exception {
-		reachMaxAndStop();
+	public synchronized void execute(CrawlDatum datum, CrawlDatums next) throws Exception {
+		if(this.count!=-1 && MonitorExecute.saveCounter.get()>=this.count){ //数量达到上限则停止爬虫
+        	stop();
+        }
 		HttpResponse response = requester.getResponse(datum);
         Page page = new Page(datum, response);
         visitor.visit(page, next);
-	}
-	
-	private synchronized void reachMaxAndStop(){ //线程同步
-		if(this.count!=-1 && MonitorExecute.saveCounter.get()>this.count){ //数量达到上限则停止爬虫
-        	stop();
-        }
 	}
 	
 	public void start(List<String> keywordList, Integer depth, Integer count, List<String> domainList, String limitType) {
