@@ -25,6 +25,9 @@ public class BaiduSearchProcessor implements Processor{
 		int size = 0;
 		//System.out.println(page.getHtml());
 		Element contentLeft = page.select("#content_left").first();
+		if(contentLeft == null){
+			return;
+		}
 		Elements divs = contentLeft.getElementsByClass("c-container");
 		for(Element element:divs){
 			Elements tmp = element.getElementsByAttributeValue("target", "_blank");

@@ -37,7 +37,7 @@
     <selectKey resultType="java.lang.Long" keyProperty="id" order="AFTER" >
       SELECT LAST_INSERT_ID()
     </selectKey>
-    insert into web_page_detail (url_md5, url, domain, 
+    replace into web_page_detail (url_md5, url, domain,
       title, src, create_time, 
       author, keyword, tags, 
       content, html, view_num, 
@@ -54,7 +54,7 @@
     <selectKey resultType="java.lang.Long" keyProperty="id" order="AFTER" >
       SELECT LAST_INSERT_ID()
     </selectKey>
-    insert into web_page_detail
+    replace into web_page_detail
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="urlMd5 != null" >
         url_md5,

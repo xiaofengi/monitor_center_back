@@ -5,6 +5,7 @@ import java.util.Map;
 
 import cn.edu.hfut.dmic.webcollector.crawldb.Generator;
 import cn.edu.hfut.dmic.webcollector.fetcher.Fetcher;
+import cn.edu.hfut.dmic.webcollector.plugin.berkeley.BerkeleyDBManager;
 import cn.edu.hfut.dmic.webcollector.util.Config;
 import org.hdu.crawler.listener.CrawlerBeginListener;
 import org.hdu.crawler.listener.CrawlerEndListener;
@@ -29,8 +30,8 @@ import cn.edu.hfut.dmic.webcollector.plugin.berkeley.BreadthCrawler;
 public class HduCrawler extends BreadthCrawler implements ApplicationContextAware{
 	private static final Logger logger = LoggerFactory.getLogger(HduCrawler.class);
 	
-	@Value("${crawler.webcollector.depth}")
-	private int depth;
+	/*@Value("${crawler.webcollector.depth}")
+	private int depth;*/
 	
 	@Value("${crawler.webcollector.threads}")
 	private int threads; 
@@ -43,6 +44,8 @@ public class HduCrawler extends BreadthCrawler implements ApplicationContextAwar
 	
 	@Value("${crawler.webcollector.executeInterval}")
 	private int executeInterval;
+
+	private String crawlPath;
 	
 	@Autowired
 	private Requester hduRequester;
@@ -57,6 +60,8 @@ public class HduCrawler extends BreadthCrawler implements ApplicationContextAwar
 	private Map<String, CrawlerBeginListener> crawlerBeginListenerMap;
 	/** 最大抓取总量 */
 	public static int count = 50000;
+	/** 最大深度 */
+	private static int depth = 80;
 	/** 域名列表 */
 	public static List<String> domainList = null;
 	/** 限制域名类型 */
@@ -67,11 +72,10 @@ public class HduCrawler extends BreadthCrawler implements ApplicationContextAwar
 	public static double threshold = 1;
 	/** 当前层数 */
 	public static int nowDepth = -1;
-/*	*//** 配置深度 *//*
-	private static int defaultDepth;*/
 	
 	public HduCrawler(@Value("${crawler.webcollector.crawlPath}") String crawlPath, @Value("${crawler.webcollector.autoParse}") boolean autoParse) {
 		super(crawlPath, autoParse);
+		this.crawlPath = crawlPath;
 	}
 
 	/* (non-Javadoc)
@@ -104,6 +108,9 @@ public class HduCrawler extends BreadthCrawler implements ApplicationContextAwar
 			HduCrawler.domainList = domainList;
 			HduCrawler.limitType = limitType;
 		}
+		if(!resumable){
+			this.seeds.clear(); //清空种子列表
+		}
 		seedGenerator.addSeed(this, keywordList, domainList);
 		this.setRequester(hduRequester);
 		logger.info("crawler start");
@@ -127,6 +134,7 @@ public class HduCrawler extends BreadthCrawler implements ApplicationContextAwar
 		//重置变量
 		HduCrawler.isStart = false;
 		HduCrawler.count = 50000;
+		HduCrawler.depth = 80;
 		HduCrawler.domainList = null;
 		HduCrawler.limitType = null;
 		HduCrawler.threshold = 1;
@@ -138,6 +146,7 @@ public class HduCrawler extends BreadthCrawler implements ApplicationContextAwar
 		if (!resumable) {
 			if (dbManager.isDBExists()) {
 				dbManager.clear();
+				LOG.info("clear database file success");
 			}
 
 			if (seeds.isEmpty() && forcedSeeds.isEmpty()) {
@@ -186,9 +195,18 @@ public class HduCrawler extends BreadthCrawler implements ApplicationContextAwar
 			}
 
 		}
-		//dbManager.close();
+		if(!resumable){ //如果不断点爬取则新建数据库管理器
+			dbManager.close(); //关闭数据库管理器
+			setDBManager(new BerkeleyDBManager(crawlPath)); //设置数据库管理器
+		}
 	}
-	
+
+	@Override
+	public void stop() {
+		super.stop();
+
+	}
+
 	private void notifyBeginCrawler() {
 		if(crawlerBeginListenerMap == null || crawlerBeginListenerMap.isEmpty()) {
 			return;
