@@ -142,7 +142,7 @@ public class HduCrawler extends BreadthCrawler implements ApplicationContextAwar
 		HduCrawler.domainList = null;
 		HduCrawler.limitType = null;
 		HduCrawler.threshold = 1;
-		HduCrawler.nowDepth = -1;
+		//HduCrawler.nowDepth = -1;
 	}
 
 	@Override
