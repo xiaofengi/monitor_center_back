@@ -103,6 +103,9 @@ public class MonitorThread extends Thread{
 	    //生成爬虫状态信息
 	    int crawlerCount = MonitorExecute.counter.intValue();
 		int saveCount = MonitorExecute.saveCounter.intValue();
+		if(saveCount > HduCrawler.count){
+			saveCount = HduCrawler.count;
+		}
 		String ram = MonitorInfoUtil.getMemMsg();
 		String cpu = MonitorInfoUtil.getCpuMsg();
 	    JobMsg jobMsg = new JobMsg();

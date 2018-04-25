@@ -59,7 +59,7 @@ public class HduCrawler extends BreadthCrawler implements ApplicationContextAwar
 	private Map<String, CrawlerEndListener> crawlerEndListenerMap;
 	private Map<String, CrawlerBeginListener> crawlerBeginListenerMap;
 	/** 最大抓取总量 */
-	private int count = 50000;
+	public static int count = 50000;
 	/** 最大深度 */
 	private int depth = 80;
 	/** 域名列表 */
@@ -86,7 +86,7 @@ public class HduCrawler extends BreadthCrawler implements ApplicationContextAwar
 	}
 
 	@Override
-	public synchronized void execute(CrawlDatum datum, CrawlDatums next) throws Exception {
+	public void execute(CrawlDatum datum, CrawlDatums next) throws Exception {
 		if(this.count!=-1 && MonitorExecute.saveCounter.get()>=this.count){ //数量达到上限则停止爬虫
         	stop();
         }
