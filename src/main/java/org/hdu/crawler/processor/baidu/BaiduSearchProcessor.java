@@ -38,7 +38,7 @@ public class BaiduSearchProcessor implements Processor{
 				//System.out.println(href);
 				//百度搜索结果url过滤
 				if(href!=null && href.startsWith("http")){
-					next.add(datumGenerator.generateBaiduSearchRs(href, page.meta("keyword"), null));
+					next.add(datumGenerator.generateBaiduSearchRs(href, page.meta("keyword"), page.meta("domain"), null));
 				}else {
 					System.out.println("取不到链接：" + href);
 				}

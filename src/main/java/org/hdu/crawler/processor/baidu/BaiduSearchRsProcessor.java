@@ -384,7 +384,7 @@ public class BaiduSearchRsProcessor implements Processor{
 					String srcUrl = page.getResponse().getRealUrl().toString();
 					WebPageRelation webPageRelation = new WebPageRelation(href, srcUrl, new Date());
 					relationLs.add(webPageRelation);
-					next.add(datumGenerator.generateBaiduSearchRs(href, page.meta("keyword"), srcUrl));
+					next.add(datumGenerator.generateBaiduSearchRs(href, page.meta("keyword"), page.meta("domain"), srcUrl));
 				}
 			}
 		}

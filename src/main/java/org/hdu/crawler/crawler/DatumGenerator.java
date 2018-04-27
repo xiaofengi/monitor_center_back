@@ -44,7 +44,7 @@ public class DatumGenerator {
 	public CrawlDatum generateBaiduSearchList(String keyword, String domain, int pn) {
 		String wd = null;
 		try {
-			wd = URLEncoder.encode("site:"+domain+" " +keyword, "utf-8");
+			wd = URLEncoder.encode("site:"+domain+" " + keyword, "utf-8");
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
@@ -61,10 +61,11 @@ public class DatumGenerator {
 	 * @param keyword 搜索关键字
 	 * @return
 	 */
-	public CrawlDatum generateBaiduSearchRs(String href, String keyword, String referer) {
+	public CrawlDatum generateBaiduSearchRs(String href, String keyword, String domain, String referer) {
 		return new CrawlDatum(href)
 				.meta(ProcessorType.PROCESSOR_TYPE, ProcessorType.PROCESSOR_TYPE_BAIDU_SEARCH_RS)
 				.meta("keyword", keyword)
+				.meta("domain", domain)
 				.meta("referer", referer);
 	}
 	

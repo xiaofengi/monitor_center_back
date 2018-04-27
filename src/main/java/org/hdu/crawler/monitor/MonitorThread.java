@@ -21,6 +21,7 @@ public class MonitorThread extends Thread{
 	
 	public static boolean flag ; //是否监控
 	public static boolean isRunning = false;
+	private int maxCount = 50000;
 	
 	@Resource
 	private JobInfoMapper jobInfoMapper;
@@ -36,6 +37,7 @@ public class MonitorThread extends Thread{
 	public void run() {
 		while(true){
 			if(HduCrawler.isStart){ //爬虫程序启动则监控
+				this.maxCount = HduCrawler.count;
 				startMonitor(); //监控开始
 				while(flag){ //监控
 					try {
@@ -103,8 +105,8 @@ public class MonitorThread extends Thread{
 	    //生成爬虫状态信息
 	    int crawlerCount = MonitorExecute.counter.intValue();
 		int saveCount = MonitorExecute.saveCounter.intValue();
-		if(saveCount > HduCrawler.count){
-			saveCount = HduCrawler.count;
+		if(saveCount > this.maxCount){
+			saveCount = this.maxCount;
 		}
 		String ram = MonitorInfoUtil.getMemMsg();
 		String cpu = MonitorInfoUtil.getCpuMsg();

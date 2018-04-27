@@ -88,7 +88,7 @@ public class SeedGenerator implements CrawlerBeginListener{
 	 * @param crawler
 	 */
 	private void generateBaiduSearch(Crawler crawler, List<String> keywordList, List<String> domainList) {
-		if(HduCrawler.limitType.equals("all")){ //不限域名
+		if(HduCrawler.limitType==null || HduCrawler.limitType.equals("all")){ //不限域名
 			for(String keyword : keywordList){
 				for(int i=0; i<=750; i+=50){ //抓取下一页，目前百度只能搜索到760条结果
 					crawler.addSeed(datumGenerator.generateBaiduSearchList(keyword, i));
