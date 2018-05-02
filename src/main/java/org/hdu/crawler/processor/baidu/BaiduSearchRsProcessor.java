@@ -23,7 +23,7 @@ import org.hdu.crawler.crawler.DatumGenerator;
 import org.hdu.crawler.crawler.HduCrawler;
 import org.hdu.crawler.monitor.MonitorExecute;
 import org.hdu.crawler.processor.Processor;
-import org.hdu.crawler.util.CommonUtil;
+import org.hdu.crawler.util.SimilarityUtil;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
@@ -59,7 +59,7 @@ public class BaiduSearchRsProcessor implements Processor{
 			parseCCTVVideoApi(page, realUrl);
 			return;
 		}
-		if(!CommonUtil.matchCrawl(page.getHtml())){ //计算网页相关度，小于阈值则不爬取
+		if(!SimilarityUtil.matchCrawl(page.getHtml())){ //计算网页相关度，小于阈值则不爬取
 			return;
 		}
 		parseWebPageDetail(page);
