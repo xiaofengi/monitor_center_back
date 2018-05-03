@@ -4,102 +4,99 @@
   
     <select id="getResult" resultType="Map">
 	    select
-	    	wpd.url,
+	    	distinct(wpd.url) url,
 	    	wpd.domain,
 	    	wpd.title,
 	    	wpd.author,
 	    	wpd.keyword,
-	    	wpd.content
+	    	substring(wpd.content, 0, 60) content,
+	    	wps1.resource_url videoUrl,
+	    	wps2.resource_url imgUrl
 	    from
 	    	search_crawler.web_page_detail wpd
-	    	<where>    
-		        <if test="input1 != null"> 
-		        	<if test="select1 == '域名'.toString()">
-		        		wpd.domain = #{input1}
+	    left join
+	    	search_crawler.web_page_resource wps1
+	    	on wpd.url=wps1.url
+	    	and wps1.resource_type=1
+	    left join
+	    	search_crawler.web_page_resource wps2
+	    	on wpd.url=wps2.url
+	    	and wps2.resource_type=2
+    	<where>    
+	        <if test="input1 != null"> 
+	        	<if test="select1 == '域名'.toString()">
+	        		wpd.domain = #{input1}
+	        	</if>   
+	             <if test="select1 == '标题'.toString()">
+	        		wpd.title like concat('%',#{input1},'%')
+	        	</if>  
+	        	<if test="select1 == '关键字'.toString()">
+	        		wpd.title like concat('%',#{input1},'%')
+	        	</if>  
+	        </if> 
+				<if test="input2 != null"> 
+					<if test="relation1 != 'not'.toString()">
+						<if test="relation1 == 'and'.toString()">
+							and
+						</if>
+						<if test="relation1 == 'or'.toString()">
+							or
+						</if>
+		        	<if test="select2 == '域名'.toString()">
+		        		wpd.domain = #{input2}
 		        	</if>   
-		             <if test="select1 == '标题'.toString()">
-		        		wpd.title like concat('%',#{input1},'%')
+		             <if test="select2 == '标题'.toString()">
+		        		wpd.title like concat('%',#{input2},'%')
 		        	</if>  
-		        	<if test="select1 == '关键字'.toString()">
-		        		wpd.title like concat('%',#{input1},'%')
+		        	<if test="select2 == '关键字'.toString()">
+		        		wpd.title like concat('%',#{input2},'%')
 		        	</if>  
-		        </if> 
- 				<if test="input2 != null"> 
- 					<if test="relation1 != 'not'.toString()">
- 						<if test="relation1 == 'and'.toString()">
- 							and
- 						</if>
- 						<if test="relation1 == 'or'.toString()">
- 							or
- 						</if>
-			        	<if test="select2 == '域名'.toString()">
-			        		wpd.domain = #{input2}
-			        	</if>   
-			             <if test="select2 == '标题'.toString()">
-			        		wpd.title like concat('%',#{input2},'%')
-			        	</if>  
-			        	<if test="select2 == '关键字'.toString()">
-			        		wpd.title like concat('%',#{input2},'%')
-			        	</if>  
-		        	</if>
-		        	<if test="relation1 == 'not'.toString()">
-		        		and
-			        	<if test="select2 == '域名'.toString()">
-			        		wpd.domain != #{input2}
-			        	</if>   
-			             <if test="select2 == '标题'.toString()">
-			        		wpd.title not like concat('%',#{input2},'%')
-			        	</if>  
-			        	<if test="select2 == '关键字'.toString()">
-			        		wpd.title not like concat('%',#{input2},'%')
-			        	</if>  
-		        	</if>
-		        </if> 
-		        <if test="input3 != null"> 
- 					<if test="relation2 != 'not'.toString()">
- 						<if test="relation2 == 'and'.toString()">
- 							and
- 						</if>
- 						<if test="relation2 == 'or'.toString()">
- 							or
- 						</if> 
-			        	<if test="select3 == '域名'.toString()">
-			        		wpd.domain = #{input3}
-			        	</if>   
-			             <if test="select3 == '标题'.toString()">
-			        		wpd.title like concat('%',#{input3},'%')
-			        	</if>  
-			        	<if test="select3 == '关键字'.toString()">
-			        		wpd.title like concat('%',#{input3},'%')
-			        	</if>  
-		        	</if>
-		        	<if test="relation2 == 'not'.toString()">
-		        		and
-			        	<if test="select3 == '域名'.toString()">
-			        		wpd.domain != #{input3}
-			        	</if>   
-			             <if test="select3 == '标题'.toString()">
-			        		wpd.title not like concat('%',#{input3},'%')
-			        	</if>  
-			        	<if test="select3 == '关键字'.toString()">
-			        		wpd.title not like concat('%',#{input3},'%')
-			        	</if>  
-		        	</if>
-		        </if> 
-		    </where>  
-	    		 
-	    			
-<!-- 	    	<trim suffixOverrides="and">
-		    	<if test="domain != null">
-		    		wpd.domain=#{domain} and
-		    	</if>
-		        <if test="keyword1 != null">
-		      		wpd.title like concat('%', #{keyword1}, '%') and
-		      	</if>
-		      	<if test="keyword2 != null">
-		      		wpd.title like concat('%', #{keyword2}, '%') and
-		      	</if>
-			</trim> -->
+	        	</if>
+	        	<if test="relation1 == 'not'.toString()">
+	        		and
+		        	<if test="select2 == '域名'.toString()">
+		        		wpd.domain != #{input2}
+		        	</if>   
+		             <if test="select2 == '标题'.toString()">
+		        		wpd.title not like concat('%',#{input2},'%')
+		        	</if>  
+		        	<if test="select2 == '关键字'.toString()">
+		        		wpd.title not like concat('%',#{input2},'%')
+		        	</if>  
+	        	</if>
+	        </if> 
+	        <if test="input3 != null"> 
+					<if test="relation2 != 'not'.toString()">
+						<if test="relation2 == 'and'.toString()">
+							and
+						</if>
+						<if test="relation2 == 'or'.toString()">
+							or
+						</if> 
+		        	<if test="select3 == '域名'.toString()">
+		        		wpd.domain = #{input3}
+		        	</if>   
+		             <if test="select3 == '标题'.toString()">
+		        		wpd.title like concat('%',#{input3},'%')
+		        	</if>  
+		        	<if test="select3 == '关键字'.toString()">
+		        		wpd.title like concat('%',#{input3},'%')
+		        	</if>  
+	        	</if>
+	        	<if test="relation2 == 'not'.toString()">
+	        		and
+		        	<if test="select3 == '域名'.toString()">
+		        		wpd.domain != #{input3}
+		        	</if>   
+		             <if test="select3 == '标题'.toString()">
+		        		wpd.title not like concat('%',#{input3},'%')
+		        	</if>  
+		        	<if test="select3 == '关键字'.toString()">
+		        		wpd.title not like concat('%',#{input3},'%')
+		        	</if>  
+	        	</if>
+	        </if> 
+	    </where>  
   	</select>
   
 </mapper>
