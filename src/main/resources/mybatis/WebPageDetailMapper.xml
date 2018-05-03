@@ -9,7 +9,7 @@
 	    	wpd.title,
 	    	wpd.author,
 	    	wpd.keyword,
-	    	substring(wpd.content, 0, 60) content,
+	    	case when wpd.content is null then null else substring(wpd.content, 0, 60) end content,
 	    	wps1.resource_url videoUrl,
 	    	wps2.resource_url imgUrl
 	    from
@@ -97,6 +97,7 @@
 	        	</if>
 	        </if> 
 	    </where>  
+	    limit 100
   	</select>
   
 </mapper>
