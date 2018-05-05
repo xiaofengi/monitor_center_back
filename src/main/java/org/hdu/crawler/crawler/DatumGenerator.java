@@ -53,7 +53,8 @@ public class DatumGenerator {
 				.meta(ProcessorType.PROCESSOR_TYPE, ProcessorType.PROCESSOR_TYPE_GOOGLE_SEARCH)
 				.meta("keyword", keyword)
 				.meta("domain", domain)
-				.meta("start", String.valueOf(start));
+				.meta("start", String.valueOf(start))
+				.meta("proxyEnable", "true");
 	}
 
 	/**
@@ -69,7 +70,8 @@ public class DatumGenerator {
 				.meta(ProcessorType.PROCESSOR_TYPE, ProcessorType.PROCESSOR_TYPE_GOOGLE_SEARCH_RS)
 				.meta("keyword", keyword)
 				.meta("domain", domain)
-				.meta("referer", referer);
+				.meta("referer", referer)
+				.meta("proxyEnable", "true");
 	}
 	
 	/**

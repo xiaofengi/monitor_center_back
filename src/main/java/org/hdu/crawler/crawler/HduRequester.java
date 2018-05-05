@@ -1,13 +1,14 @@
 package org.hdu.crawler.crawler;
 
 import java.io.UnsupportedEncodingException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import org.hdu.crawler.constants.DatumConstants;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import javax.annotation.Resource;
+import org.hdu.back.model.ProxyEntity;
 import org.hdu.crawler.constants.ProcessorType;
 import org.hdu.crawler.listener.CrawlerBeginListener;
 import org.hdu.crawler.listener.CrawlerEndListener;
+import org.hdu.crawler.proxy.ProxyEntityPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,11 +20,13 @@ import cn.edu.hfut.dmic.webcollector.net.Requester;
 
 @Component
 public class HduRequester implements Requester, CrawlerBeginListener, CrawlerEndListener{
-	//private static final Logger logger = LoggerFactory.getLogger(HduRequester.class);
-	private static final ExecutorService exec = Executors.newFixedThreadPool(1);
+	private static final Logger logger = LoggerFactory.getLogger(HduRequester.class);
 	
 	@Value("${crawler.proxy.enable}")
 	private boolean proxyEnable;
+	
+	@Resource
+	private ProxyEntityPool proxyEntityPool;
 	
 	@Override
 	public HttpResponse getResponse(CrawlDatum crawlDatum) throws Exception {
@@ -33,14 +36,21 @@ public class HduRequester implements Requester, CrawlerBeginListener, CrawlerEnd
 			request = new HttpRequest(crawlDatum);
 			request.setMAX_REDIRECT(4);
 			setHeader(crawlDatum, request);
-			if(proxyEnable){
+			if(crawlDatum.meta("proxyEnable") != null){ //设置代理
+				ProxyEntity proxyEntity = proxyEntityPool.getOne();
+				setProxy(request, proxyEntity);
+				logger.info(crawlDatum.getUrl()+"使用代理"+proxyEntity.getHost()+":"+proxyEntity.getPort());
 			}
 			res = request.getResponse();
 		}  catch (Exception e) {
 			throw e;
-		} finally {
 		}
 		return res;
+	}
+	
+	private void setProxy(HttpRequest request, ProxyEntity proxyEntity){
+		Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyEntity.getHost(), proxyEntity.getPort()));
+		request.setProxy(proxy);
 	}
 
 	private void setHeader(CrawlDatum crawlDatum, HttpRequest request) {

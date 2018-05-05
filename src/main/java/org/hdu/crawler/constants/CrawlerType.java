@@ -2,6 +2,7 @@ package org.hdu.crawler.constants;
 
 public class CrawlerType {
 
+	public static final String SEARCH = "search";
 	public static final String GOOGLE_SEARCH = "google_search";
 	public static final String BAIDU_SEARCH = "baidu_search";
 	public static final String BAIDU_VIDEO_SEARCH = "baidu_video_search";

@@ -11,7 +11,6 @@ import org.hdu.back.model.JobDaily;
 import org.hdu.back.model.JobInfo;
 import org.hdu.back.model.JobMsg;
 import org.hdu.crawler.crawler.HduCrawler;
-import org.hdu.crawler.util.MonitorInfoUtil;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 

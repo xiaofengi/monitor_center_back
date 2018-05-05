@@ -7,7 +7,6 @@ import javax.annotation.Resource;
 
 import org.hdu.crawler.listener.CrawlerBeginListener;
 import org.hdu.crawler.listener.CrawlerEndListener;
-import org.hdu.crawler.util.MonitorInfoUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

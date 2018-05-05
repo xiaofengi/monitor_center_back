@@ -1,6 +1,9 @@
 package org.hdu.crawler.util;
 
 import cn.edu.hfut.dmic.webcollector.model.Page;
+
+import java.util.Map;
+
 import org.hdu.crawler.crawler.HduCrawler;
 
 public class DomainUtil {
@@ -20,8 +23,8 @@ public class DomainUtil {
                     }
                 case "list": //限列表
                     boolean isContains = false;
-                    for(String dm : HduCrawler.domainList){
-                        if(domain.equals(dm)){
+                    for(Map<String, Object> domainInfo : HduCrawler.domainList){
+                        if(domainInfo.get("domain").toString().equals(domain)){
                             isContains = true;
                             break;
                         }

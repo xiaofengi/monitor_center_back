@@ -1,4 +1,4 @@
-package org.hdu.crawler.util;
+package org.hdu.crawler.monitor;
 
 import java.io.BufferedReader;
 import java.io.IOException;

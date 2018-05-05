@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-
 import javax.annotation.Resource;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -156,8 +155,8 @@ public class GoogleSearchRsProcessor implements Processor{
         String content = null;
         if(!page.select("article").isEmpty()){
             content = page.select("article").first().text();
-        }else if(!page.select(".article_content, .topic-content, .main-content, .article-content-wrap, .sec_article, .post_text, .article, .Cnt-Main-Article-QQ, yc_con_txt").isEmpty()){
-            content = page.select(".article_content, .topic-content, .main-content, .article-content-wrap, .sec_article, .post_text, .article, .Cnt-Main-Article-QQ, yc_con_txt").first().text();
+        }else if(!page.select(".article_content, .topic-content, .main-content, .article-content-wrap, .sec_article, .post_text, .article, .Cnt-Main-Article-QQ, .yc_con_txt, .theme-content").isEmpty()){
+            content = page.select(".article_content, .topic-content, .main-content, .article-content-wrap, .sec_article, .post_text, .article, .Cnt-Main-Article-QQ, .yc_con_txt, .theme-content").first().text();
         }
         if(content != null){
             webPageDetail.setContent(content);

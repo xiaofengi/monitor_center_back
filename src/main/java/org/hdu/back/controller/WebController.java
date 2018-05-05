@@ -86,7 +86,7 @@ public class WebController extends BaseController{
     	}
     	//解析主题和域名文件
     	final List<String> keywordList = new ArrayList<>();
-    	final List<String> domainList = new ArrayList<>();
+    	final List<Map<String, Object>> domainList = new ArrayList<>();
     	try {
     		String subFileEncoding = FileUtil.getEncoding(subFile.getInputStream());
     		logger.info("主题文件编码格式: " + subFileEncoding); 
@@ -102,11 +102,19 @@ public class WebController extends BaseController{
 				String domainFileEncoding = FileUtil.getEncoding(domainFile.getInputStream());
 	    		logger.info("域名文件编码格式: " + domainFileEncoding); 
 				BufferedReader domainReader = new BufferedReader(new InputStreamReader(domainFile.getInputStream(), domainFileEncoding));
-				String domain;
-				while((domain=domainReader.readLine()) != null){
-					logger.info("输入域名：" + domain.trim());
-					if(!domain.trim().equals("")){
-						domainList.add(domain.trim());
+				String domainLine;
+				while((domainLine=domainReader.readLine()) != null){
+					domainLine = domainLine.trim();
+					logger.info("输入域名：" + domainLine);
+					if(!domainLine.equals("")){
+						String[] domainAndLocation = domainLine.split(" ");
+						if(domainAndLocation.length != 2){
+							return buildResult(CODE_BUSINESS_ERROR, "域名文件格式不正确，格式如www.baidu.com 国内");
+						}
+						Map<String, Object> domainInfo = new HashMap<>();
+						domainInfo.put("domain", domainAndLocation[0]);
+						domainInfo.put("location", domainAndLocation[1]);
+						domainList.add(domainInfo);
 					}
 				}
 			}

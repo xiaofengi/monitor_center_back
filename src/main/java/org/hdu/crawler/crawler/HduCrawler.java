@@ -63,7 +63,7 @@ public class HduCrawler extends BreadthCrawler implements ApplicationContextAwar
 	/** 最大深度 */
 	private int depth = 80;
 	/** 域名列表 */
-	public static List<String> domainList = null;
+	public static List<Map<String, Object>> domainList = null;
 	/** 限制域名类型 */
 	public static String limitType = null;
 	/** 是否已启动爬虫 */
@@ -87,7 +87,7 @@ public class HduCrawler extends BreadthCrawler implements ApplicationContextAwar
 
 	@Override
 	public void execute(CrawlDatum datum, CrawlDatums next) throws Exception {
-		if(this.count!=-1 && MonitorExecute.saveCounter.get()>=this.count){ //数量达到上限则停止爬虫
+		if(HduCrawler.count!=-1 && MonitorExecute.saveCounter.get()>=HduCrawler.count){ //数量达到上限则停止爬虫
         	stop();
         }
 		HttpResponse response = requester.getResponse(datum);
@@ -95,13 +95,13 @@ public class HduCrawler extends BreadthCrawler implements ApplicationContextAwar
         visitor.visit(page, next);
 	}
 	
-	public void start(List<String> keywordList, Integer depth, Integer count, List<String> domainList, String limitType) {
+	public void start(List<String> keywordList, Integer depth, Integer count, List<Map<String, Object>> domainList, String limitType) {
 		long startTime = System.currentTimeMillis();
 		if(depth != null){
 			this.depth = depth;
 		}
 		if(count != null){
-			this.count = count;
+			HduCrawler.count = count;
 		}
 		if(!domainList.isEmpty()){
 			HduCrawler.domainList = domainList;
@@ -133,7 +133,7 @@ public class HduCrawler extends BreadthCrawler implements ApplicationContextAwar
         logger.info("crawler end" );
 		logger.info("爬取总时间:" + (System.currentTimeMillis()-startTime)/1000 + "秒");
 		//重置变量
-		this.count = 50000;
+		HduCrawler.count = 50000;
 		this.depth = 80;
 		HduCrawler.domainList = null;
 		HduCrawler.limitType = null;
