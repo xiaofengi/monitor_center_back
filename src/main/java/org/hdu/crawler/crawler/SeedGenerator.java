@@ -3,11 +3,7 @@ package org.hdu.crawler.crawler;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.hdu.crawler.constants.CrawlerType;
 import org.hdu.crawler.constants.DatumConstants;
@@ -57,6 +53,15 @@ public class SeedGenerator implements CrawlerBeginListener{
 	
 	public void addSeed(Crawler crawler, List<String> keywordList, List<String> domainList) {
 		switch (crawlerType) {
+			case CrawlerType.GOOGLE_SEARCH:
+				//设置代理
+				Properties properties = System.getProperties();
+				properties.setProperty("http.proxyHost", "127.0.0.1");
+				properties.setProperty("http.proxyPort", "1080");
+				properties.setProperty("https.proxyHost", "127.0.0.1");
+				properties.setProperty("https.proxyPort", "1080");
+				generateGoogleSearch(crawler, keywordList, domainList);
+				break;
 			case CrawlerType.BAIDU_SEARCH:
 				generateBaiduSearch(crawler, keywordList, domainList);
 				break;
@@ -80,6 +85,24 @@ public class SeedGenerator implements CrawlerBeginListener{
 				break;
 		default:
 			break;
+		}
+	}
+
+	private void generateGoogleSearch(Crawler crawler, List<String> keywordList, List<String> domainList) {
+		if(HduCrawler.limitType==null || HduCrawler.limitType.equals("all")){ //不限域名
+			for(String keyword : keywordList){
+				for(int i=0; i<=350; i+=50){ //抓取下一页，目前谷歌只能搜索到350多条结果
+					crawler.addSeed(datumGenerator.generateGoogleSearchList(keyword, i));
+				}
+			}
+		}else { //限制
+			for(String keyword : keywordList){
+				for(String domain : domainList){
+					for(int i=0; i<=750; i+=50){ //抓取下一页，目前谷歌只能搜索到350多条结果
+						crawler.addSeed(datumGenerator.generateGoogleSearchList(keyword, domain, i));
+					}
+				}
+			}
 		}
 	}
 

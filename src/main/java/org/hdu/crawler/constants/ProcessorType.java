@@ -3,6 +3,8 @@ package org.hdu.crawler.constants;
 public class ProcessorType {
 	
 	public static final String PROCESSOR_TYPE = "processor_type";
+	public static final String PROCESSOR_TYPE_GOOGLE_SEARCH = "processor_type_google_search";
+	public static final String PROCESSOR_TYPE_GOOGLE_SEARCH_RS = "processor_type_google_search_rs";
 	public static final String PROCESSOR_TYPE_BAIDU_SEARCH = "processor_type_baidu_search";
 	public static final String PROCESSOR_TYPE_BAIDU_SEARCH_RS = "processor_type_baidu_search_rs";
 	public static final String PROCESSOR_TYPE_BAIDU_VIDEO_SEARCH = "processor_type_baidu_video_search";

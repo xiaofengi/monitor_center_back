@@ -53,7 +53,7 @@ public class MonitorExecute implements CrawlerBeginListener,CrawlerEndListener{
 			MonitorThread.isRunning = true;
 			msgThread.start();
 		}
-		logger.info("start monitor");
+		logger.info("monitor start");
 	}
 
 	@Override
@@ -62,7 +62,7 @@ public class MonitorExecute implements CrawlerBeginListener,CrawlerEndListener{
 			return; //测试代码不启动监控
 		}
 		MonitorThread.flag = false;//停止监控
-		logger.info("end monitor");
+		logger.info("monitor end");
 	}
 	
 	/*public void sendErrorMsg(String exceptionMsg){//发生异常时调用

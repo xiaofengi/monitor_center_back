@@ -91,19 +91,23 @@ public class WebController extends BaseController{
     		String subFileEncoding = FileUtil.getEncoding(subFile.getInputStream());
     		logger.info("主题文件编码格式: " + subFileEncoding); 
 			BufferedReader subReader = new BufferedReader(new InputStreamReader(subFile.getInputStream(), subFileEncoding));
-			String keyword = null;
+			String keyword;
 			while((keyword=subReader.readLine()) != null){
-				keywordList.add(keyword.trim());
-				System.out.println("输入关键词：" + keyword.trim());
+				logger.info("输入关键词：" + keyword.trim());
+				if(!keyword.trim().equals("")){
+					keywordList.add(keyword.trim());
+				}
 			}
 			if(domainFile != null){
 				String domainFileEncoding = FileUtil.getEncoding(domainFile.getInputStream());
 	    		logger.info("域名文件编码格式: " + domainFileEncoding); 
 				BufferedReader domainReader = new BufferedReader(new InputStreamReader(domainFile.getInputStream(), domainFileEncoding));
-				String domain = null;
+				String domain;
 				while((domain=domainReader.readLine()) != null){
-					domainList.add(domain.trim());
-					System.out.println("输入域名：" + domain.trim());
+					logger.info("输入域名：" + domain.trim());
+					if(!domain.trim().equals("")){
+						domainList.add(domain.trim());
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -131,8 +135,10 @@ public class WebController extends BaseController{
     	logger.info("收到爬虫结束指令");
     	if(HduCrawler.isStart){
     		hduCrawler.stop();
-    	}
-    	return buildResult(CODE_SUCCESS, "停止爬虫成功");
+			return buildResult(CODE_SUCCESS, "停止爬虫成功");
+    	}else {
+			return buildResult(CODE_SUCCESS, "爬虫未启动，无法停止");
+		}
     }
 
     /**

@@ -9,18 +9,31 @@
 	    	wpd.title,
 	    	wpd.author,
 	    	wpd.keyword,
-	    	case when wpd.content is null then null else substring(wpd.content, 0, 60) end content,
+	    	case when
+				wpd.content is null
+			then
+				null
+			else
+				case when
+					char_length(wpd.content)>100
+				then
+					substring(wpd.content, 1, 100)
+				else
+					substring(wpd.content, 1)
+				end
+			end
+			content,
 	    	wps1.resource_url videoUrl,
-	    	wps2.resource_url imgUrl
+			wps2.resource_url imgUrl
 	    from
 	    	search_crawler.web_page_detail wpd
 	    left join
 	    	search_crawler.web_page_resource wps1
-	    	on wpd.url=wps1.url
+	    	on wpd.id=wps1.url_detail_id
 	    	and wps1.resource_type=1
 	    left join
 	    	search_crawler.web_page_resource wps2
-	    	on wpd.url=wps2.url
+	    	on wpd.id=wps2.url_detail_id
 	    	and wps2.resource_type=2
     	<where>    
 	        <if test="input1 != null"> 
@@ -96,8 +109,8 @@
 		        	</if>  
 	        	</if>
 	        </if> 
-	    </where>  
-	    limit 100
+	    </where>
+	    limit 20
   	</select>
   
 </mapper>

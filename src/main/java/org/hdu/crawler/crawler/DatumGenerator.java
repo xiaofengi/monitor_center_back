@@ -14,6 +14,63 @@ import java.net.URLEncoder;
 @Component
 public class DatumGenerator {
 	//private static final Logger logger = LoggerFactory.getLogger(DatumGenerator.class);
+
+
+	/**
+	 * 生成谷歌搜索列表
+	 * @param keyword 搜索关键字
+	 * @param start 页面数(0,50,100...)
+	 * @return
+	 */
+	public CrawlDatum generateGoogleSearchList(String keyword, int start) {
+		String wd = null;
+		try {
+			wd = URLEncoder.encode("intitle:"+keyword, "utf-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return new CrawlDatum(String.format(DatumConstants.GOOGLE_SEARCH_URL, wd, start))
+				.meta(ProcessorType.PROCESSOR_TYPE, ProcessorType.PROCESSOR_TYPE_GOOGLE_SEARCH)
+				.meta("keyword", keyword)
+				.meta("start", String.valueOf(start));
+	}
+
+	/**
+	 * 生成谷歌搜索列表
+	 * @param keyword 搜索关键字
+	 * @param domain 域名
+	 * @param start 页面数(0,50,100...)
+	 * @return
+	 */
+	public CrawlDatum generateGoogleSearchList(String keyword, String domain, int start) {
+		String wd = null;
+		try {
+			wd = URLEncoder.encode("site:"+domain+" " + keyword, "utf-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return new CrawlDatum(String.format(DatumConstants.GOOGLE_SEARCH_URL, wd, start))
+				.meta(ProcessorType.PROCESSOR_TYPE, ProcessorType.PROCESSOR_TYPE_GOOGLE_SEARCH)
+				.meta("keyword", keyword)
+				.meta("domain", domain)
+				.meta("start", String.valueOf(start));
+	}
+
+	/**
+	 * 谷歌搜索结果链接
+	 * @param href 链接
+	 * @param keyword 搜索关键字
+	 * @param domain 域名
+	 * @param referer 引用页
+	 * @return
+	 */
+	public CrawlDatum generateGoogleSearchRs(String href, String keyword, String domain, String referer) {
+		return new CrawlDatum(href)
+				.meta(ProcessorType.PROCESSOR_TYPE, ProcessorType.PROCESSOR_TYPE_GOOGLE_SEARCH_RS)
+				.meta("keyword", keyword)
+				.meta("domain", domain)
+				.meta("referer", referer);
+	}
 	
 	/**
 	 * 生成百度搜索列表
@@ -59,6 +116,8 @@ public class DatumGenerator {
 	 * 百度搜索结果链接
 	 * @param href 链接
 	 * @param keyword 搜索关键字
+	 * @param domain 域名
+	 * @param referer 引用页
 	 * @return
 	 */
 	public CrawlDatum generateBaiduSearchRs(String href, String keyword, String domain, String referer) {
@@ -126,12 +185,13 @@ public class DatumGenerator {
 	 * @param keyword 关键字
 	 * @return
 	 */
-	public CrawlDatum generateCCTVVideo(String videoId, String referer, String keyword) {
+	public CrawlDatum generateCCTVVideo(String videoId, String referer, String keyword, long urlDetailId) {
 		return new CrawlDatum(String.format(DatumConstants.CCTV_VIDEO_INTERFACE, videoId))
 				.meta(ProcessorType.PROCESSOR_TYPE, ProcessorType.PROCESSOR_TYPE_BAIDU_SEARCH_RS)
 				.meta("referer", referer)
 				.meta("videoId", videoId)
-				.meta("keyword", keyword);
+				.meta("keyword", keyword)
+				.meta("urlDetailId", String.valueOf(urlDetailId));
 	}
 
 	/**
@@ -212,5 +272,4 @@ public class DatumGenerator {
 		return new CrawlDatum(url)
 				.meta(ProcessorType.PROCESSOR_TYPE, ProcessorType.PROCESSOR_TYPE_FACEBOOK_SEARCH);
 	}
-
 }

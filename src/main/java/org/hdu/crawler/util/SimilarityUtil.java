@@ -6,8 +6,6 @@ import org.ansj.recognition.impl.StopRecognition;
 import org.ansj.splitWord.analysis.*;
 import org.hdu.crawler.crawler.HduCrawler;
 
-import java.util.List;
-
 public class SimilarityUtil {
 
     /**
@@ -44,9 +42,9 @@ public class SimilarityUtil {
         //System.out.println(BaseAnalysis.parse(str));
         Result result = ToAnalysis.parse(str).recognition(filter);
         System.out.println(result);
-/*        System.out.println(DicAnalysis.parse(str));
+        System.out.println(DicAnalysis.parse(str));
         System.out.println(IndexAnalysis.parse(str));
-        System.out.println(NlpAnalysis.parse(str));*/
+        System.out.println(NlpAnalysis.parse(str));
         String keyword = "人工智能";
         int count = 0;
         for(Term term:result.getTerms()){

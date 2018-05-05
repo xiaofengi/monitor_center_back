@@ -49,6 +49,9 @@ public class HduRequester implements Requester, CrawlerBeginListener, CrawlerEnd
 			request.setHeader("referer", crawlDatum.meta("referer"));
 		}
 		switch (crawlDatum.meta(ProcessorType.PROCESSOR_TYPE)) {
+			case ProcessorType.PROCESSOR_TYPE_GOOGLE_SEARCH:
+				request.setCookie("1P_JAR=2018-05-05-06; SIDCC=AEfoLeZGSfjFsq4AFGqP9r6Y3uFYnqmIv4hsTSHwuiXuLY0he0sN2LkHqoobliG1MCwsnJzMEA;");
+				break;
 			case ProcessorType.PROCESSOR_TYPE_BAIDU_SEARCH_RS:
 				break;
 			case ProcessorType.PROCESSOR_TYPE_BAIDU_VIDEO_SEARCH:

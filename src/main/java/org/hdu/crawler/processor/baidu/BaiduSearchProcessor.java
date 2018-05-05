@@ -4,6 +4,8 @@ import org.hdu.crawler.crawler.DatumGenerator;
 import org.hdu.crawler.processor.Processor;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import cn.edu.hfut.dmic.webcollector.model.CrawlDatums;
@@ -15,6 +17,8 @@ import java.text.ParseException;
 
 @Component
 public class BaiduSearchProcessor implements Processor{
+
+	Logger logger = LoggerFactory.getLogger(BaiduSearchProcessor.class);
 
 	@Resource
 	private DatumGenerator datumGenerator;
@@ -40,12 +44,12 @@ public class BaiduSearchProcessor implements Processor{
 				if(href!=null && href.startsWith("http")){
 					next.add(datumGenerator.generateBaiduSearchRs(href, page.meta("keyword"), page.meta("domain"), null));
 				}else {
-					System.out.println("取不到链接：" + href);
+					logger.error("取不到链接：" + href);
 				}
 				size++;
 			}
 		}
-		System.out.println("共搜索到" + size + "条数据");
+		logger.info("共搜索到" + size + "条数据");
 //		//第一页的话往下抓取
 //		int pn = Integer.parseInt(page.meta("pn"));
 //		if(pn == 0){

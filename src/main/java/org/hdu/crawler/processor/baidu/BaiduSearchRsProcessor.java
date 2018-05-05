@@ -20,9 +20,9 @@ import org.hdu.back.model.WebPageResource;
 import org.hdu.back.util.AlgorithmUtil;
 import org.hdu.crawler.constants.DatumConstants;
 import org.hdu.crawler.crawler.DatumGenerator;
-import org.hdu.crawler.crawler.HduCrawler;
 import org.hdu.crawler.monitor.MonitorExecute;
 import org.hdu.crawler.processor.Processor;
+import org.hdu.crawler.util.DomainUtil;
 import org.hdu.crawler.util.SimilarityUtil;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -49,7 +49,7 @@ public class BaiduSearchRsProcessor implements Processor{
     public void process(Page page, CrawlDatums next) {
 		MonitorExecute.counter.getAndIncrement();
     	String realUrl = page.getResponse().getRealUrl().toString();
-        if(realUrl.contains("http://www.baidu.com/s")){ //暂时不处理再次链接到百度搜索的网页
+        if(realUrl.contains("www.baidu.com/s")){ //暂时不处理再次链接到百度搜索的网页
 			return;
 		}
 		if(page.getHtml()==null || page.select("title").isEmpty()){ //下载失败的数据
@@ -59,11 +59,16 @@ public class BaiduSearchRsProcessor implements Processor{
 			parseCCTVVideoApi(page, realUrl);
 			return;
 		}
+		String title = page.select("title").first().text();
+		if(!title.contains(page.meta("keyword"))) { //过滤与关键字不相关的网页
+			return;
+		}
 		if(!SimilarityUtil.matchCrawl(page.getHtml())){ //计算网页相关度，小于阈值则不爬取
 			return;
 		}
-		parseWebPageDetail(page);
-		parseWebSource(page, next);
+		long urlDetailId = parseWebPageDetail(page);
+		MonitorExecute.saveCounter.getAndIncrement();
+		parseWebSource(page, next, urlDetailId);
 		parseHref(page, next);
     }
 
@@ -72,6 +77,8 @@ public class BaiduSearchRsProcessor implements Processor{
 	 * @param page
 	 */
 	private void parseCCTVVideoApi(Page page, String realUrl){
+		long urlDetailId = Long.parseLong(page.meta("urlDetailId"));
+
 		List<WebPageResource> resourceLs = new LinkedList<>();
 		Map videoInfo = new Gson().fromJson(page.getHtml(), Map.class);
 		List<Map> data = (List<Map>)videoInfo.get("data");
@@ -86,7 +93,7 @@ public class BaiduSearchRsProcessor implements Processor{
 			}else {
 				videoFilePath = tmp + ".mp4";
 			}
-			resourceLs.add(new WebPageResource(videoFilePath, DatumConstants.RESOURCE_TYPE_VIDEO, new Date(), realUrl));
+			resourceLs.add(new WebPageResource(urlDetailId, realUrl, videoFilePath, DatumConstants.RESOURCE_TYPE_VIDEO, new Date()));
 		}
 		if(videoFilePaths.containsKey("videoFilePathHD")) {//高清视频
 			String tmp = ((String)videoFilePaths.get("videoFilePathHD")).split("#")[0];
@@ -97,7 +104,7 @@ public class BaiduSearchRsProcessor implements Processor{
 			}else {
 				videoFilePathHD = tmp + ".mp4";
 			}
-			resourceLs.add(new WebPageResource(videoFilePathHD, DatumConstants.RESOURCE_TYPE_VIDEO, new Date(), realUrl));
+			resourceLs.add(new WebPageResource(urlDetailId, realUrl, videoFilePathHD, DatumConstants.RESOURCE_TYPE_VIDEO, new Date()));
 		}
 		if(videoFilePaths.containsKey("videoFilePathSHD")) {//超清视频
 			String tmp = ((String)videoFilePaths.get("videoFilePathSHD")).split("#")[0];
@@ -108,7 +115,7 @@ public class BaiduSearchRsProcessor implements Processor{
 			}else {
 				videoFilePathSHD = tmp + ".mp4";
 			}
-			resourceLs.add(new WebPageResource(videoFilePathSHD, DatumConstants.RESOURCE_TYPE_VIDEO, new Date(), realUrl));
+			resourceLs.add(new WebPageResource(urlDetailId, realUrl, videoFilePathSHD, DatumConstants.RESOURCE_TYPE_VIDEO, new Date()));
 		}
 		if(!resourceLs.isEmpty()){
 			webPageResourceMapper.batchInsert(resourceLs);
@@ -119,149 +126,148 @@ public class BaiduSearchRsProcessor implements Processor{
 	 * 解析网页详情
 	 * @param page
 	 * @param next
+	 * @return 网页详情页id
 	 */
-	private void parseWebPageDetail(Page page){
+	private long parseWebPageDetail(Page page){
 		String title = page.select("title").first().text();
-		if(title.contains(page.meta("keyword"))){ //过滤与关键字不相关的网页
-			WebPageDetail webPageDetail = new WebPageDetail();
-			//网页地址md5，作为索引
-			String realUrl  = page.getResponse().getRealUrl().toString();
-			String realUrlMd5 = AlgorithmUtil.toMD5(realUrl);
-			webPageDetail.setUrlMd5(realUrlMd5);
-			//网页地址
-			webPageDetail.setUrl(realUrl);
-			//域名
-			webPageDetail.setDomain(page.getResponse().getRealUrl().getHost());
-			//标题
-			webPageDetail.setTitle(title);
-			//文章来源
-			if(!page.select("#ne_article_source, .fabiao, .a_source, .source").isEmpty()){
-				String src = page.select("#ne_article_source, .fabiao, .a_source, .source").first().text();
-				webPageDetail.setSrc(src);
+		WebPageDetail webPageDetail = new WebPageDetail();
+		//网页地址md5，作为索引
+		String realUrl  = page.getResponse().getRealUrl().toString();
+		String realUrlMd5 = AlgorithmUtil.toMD5(realUrl);
+		webPageDetail.setUrlMd5(realUrlMd5);
+		//网页地址
+		webPageDetail.setUrl(realUrl);
+		//域名
+		webPageDetail.setDomain(page.getResponse().getRealUrl().getHost());
+		//标题
+		webPageDetail.setTitle(title);
+		//文章来源
+		if(!page.select("#ne_article_source, .fabiao, .a_source, .source").isEmpty()){
+			String src = page.select("#ne_article_source, .fabiao, .a_source, .source").first().text();
+			webPageDetail.setSrc(src);
+		}
+		//创建时间
+		String createTimeStr = null;
+		if(!page.select(".time, .utime, .time, .date, .a_time").isEmpty()){
+			createTimeStr = page.select(".time, .utime, .time, .date, .a_time").first().text();
+		}else if(!page.select(".post_time_source").isEmpty()) {
+			createTimeStr = page.select(".post_time_source").first().text();
+			if(createTimeStr.indexOf("来源") != -1) {
+				createTimeStr = createTimeStr.substring(0, createTimeStr.indexOf("来源")).trim();
 			}
-			//创建时间
-			String createTimeStr = null;
-			if(!page.select(".time, .utime, .time, .date, .a_time").isEmpty()){
-				createTimeStr = page.select(".time, .utime, .time, .date, .a_time").first().text();
-			}else if(!page.select(".post_time_source").isEmpty()) {
-				createTimeStr = page.select(".post_time_source").first().text();
-				if(createTimeStr.indexOf("来源") != -1) {
-					createTimeStr = createTimeStr.substring(0, createTimeStr.indexOf("来源")).trim();
+		}
+		if(createTimeStr != null){
+			if(createTimeStr.matches("^\\d{4}年\\d{2}月\\d{2}日 \\d{2}:\\d{2}.*")){
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日 HH:mm");
+				Date createTime = null;
+				try {
+					createTime = sdf.parse(createTimeStr);
+				} catch (ParseException e) {
+					e.printStackTrace();
 				}
-			}
-			if(createTimeStr != null){
-				if(createTimeStr.matches("^\\d{4}年\\d{2}月\\d{2}日 \\d{2}:\\d{2}.*")){
-					SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日 HH:mm");
-					Date createTime = null;
-					try {
-						createTime = sdf.parse(createTimeStr);
-					} catch (ParseException e) {
-						e.printStackTrace();
-					}
+				webPageDetail.setCreateTime(createTime);
+			}else if(createTimeStr.matches("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}.*")) {
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+				try {
+					Date createTime = sdf.parse(createTimeStr);
 					webPageDetail.setCreateTime(createTime);
-				}else if(createTimeStr.matches("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}.*")) {
-					SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-					try {
-						Date createTime = sdf.parse(createTimeStr);
-						webPageDetail.setCreateTime(createTime);
-					} catch (ParseException e) {
-						e.printStackTrace();
-					}
+				} catch (ParseException e) {
+					e.printStackTrace();
 				}
 			}
-			//作者
-			String author = null;
-			if(!page.select(".author, .author-name, .from, .ep-editor, .show_author, .qq_editor").isEmpty()){
-				author = page.select(".author, .author-name, .from, .ep-editor, .show_author, .qq_editor").first().text();
-			}else if(!page.select(".user_info").isEmpty()){
-				Element userInfo = page.select(".user_info").first();
-				if(userInfo.getElementById("uid") != null) {
-					author = userInfo.getElementById("uid").text();
+		}
+		//作者
+		String author = null;
+		if(!page.select(".author, .author-name, .from, .ep-editor, .show_author, .qq_editor").isEmpty()){
+			author = page.select(".author, .author-name, .from, .ep-editor, .show_author, .qq_editor").first().text();
+		}else if(!page.select(".user_info").isEmpty()){
+			Element userInfo = page.select(".user_info").first();
+			if(userInfo.getElementById("uid") != null) {
+				author = userInfo.getElementById("uid").text();
+			}
+		}
+		if(author != null){
+			webPageDetail.setAuthor(author);
+		}
+		//关键字
+		webPageDetail.setKeyword(page.meta("keyword"));
+		//标签
+		String tags = null;
+		if(!page.select("[target=tags]").isEmpty()){
+			tags = page.select("[target=tags]").first().attr("content");
+		}else if(!page.select(".article_tags a").isEmpty()){
+			Elements ts = page.select(".article_tags a");
+			for(Element tag : ts){
+				tags = tags + tag.text() + ",";
+			}
+			tags = tags.substring(0, tags.length()-1);
+		}
+		if(tags != null) {
+			webPageDetail.setTags(tags);
+		}
+		//内容
+		String content = null;
+		if(!page.select("article").isEmpty()){
+			content = page.select("article").first().text();
+		}else if(!page.select(".article_content, .topic-content, .main-content, .article-content-wrap, .sec_article, .post_text, .article, .Cnt-Main-Article-QQ, yc_con_txt").isEmpty()){
+			content = page.select(".article_content, .topic-content, .main-content, .article-content-wrap, .sec_article, .post_text, .article, .Cnt-Main-Article-QQ, yc_con_txt").first().text();
+		}
+		if(content != null){
+			webPageDetail.setContent(content);
+		}
+		//html
+		webPageDetail.setHtml(page.getHtml());
+		//浏览数
+		Integer viewNum = null;
+		if(!page.select(".art_click_count, .js-tiejoincount, .num, .cmtNum, .w-num").isEmpty()){
+			String txt = page.select(".art_click_count, .js-tiejoincount, .num, .cmtNum, .w-num").first().text();
+			if(!StringUtils.isEmpty(txt)){
+				try {
+					viewNum = Integer.parseInt(txt);
+				}catch (Exception e){
 				}
 			}
-			if(author != null){
-				webPageDetail.setAuthor(author);
-			}
-			//关键字
-			webPageDetail.setKeyword(page.meta("keyword"));
-			//标签
-			String tags = null;
-			if(!page.select("[target=tags]").isEmpty()){
-				tags = page.select("[target=tags]").first().attr("content");
-			}else if(!page.select(".article_tags a").isEmpty()){
-				Elements ts = page.select(".article_tags a");
-				for(Element tag : ts){
-					tags = tags + tag.text() + ",";
-				}
-				tags = tags.substring(0, tags.length()-1);
-			}
-			if(tags != null) {
-				webPageDetail.setTags(tags);
-			}
-			//内容
-			String content = null;
-			if(!page.select("article").isEmpty()){
-				content = page.select("article").first().text();
-			}else if(!page.select(".article_content, .topic-content, .main-content, .article-content-wrap, .sec_article, .post_text, .article, .Cnt-Main-Article-QQ, yc_con_txt").isEmpty()){
-				content = page.select(".article_content, .topic-content, .main-content, .article-content-wrap, .sec_article, .post_text, .article, .Cnt-Main-Article-QQ, yc_con_txt").first().text();
-			}
-			if(content != null){
-				webPageDetail.setContent(content);
-			}
-			//html
-			webPageDetail.setHtml(page.getHtml());
-			//浏览数
-			Integer viewNum = null;
-			if(!page.select(".art_click_count, .js-tiejoincount, .num, .cmtNum, .w-num").isEmpty()){
-				String txt = page.select(".art_click_count, .js-tiejoincount, .num, .cmtNum, .w-num").first().text();
-				if(!StringUtils.isEmpty(txt)){
-					try {
-						viewNum = Integer.parseInt(txt);
-					}catch (Exception e){
-					}
-				}
-			}else if(!page.select(".icon-read").isEmpty()){
-				String txt = page.select(".icon-read").first().nextElementSibling().text();
-				if(!StringUtils.isEmpty(txt)) {
-					try {
-						viewNum = Integer.parseInt(txt);
-					}catch (Exception e){
-					}
+		}else if(!page.select(".icon-read").isEmpty()){
+			String txt = page.select(".icon-read").first().nextElementSibling().text();
+			if(!StringUtils.isEmpty(txt)) {
+				try {
+					viewNum = Integer.parseInt(txt);
+				}catch (Exception e){
 				}
 			}
-			if(viewNum != null){
-				webPageDetail.setViewNum(viewNum);
+		}
+		if(viewNum != null){
+			webPageDetail.setViewNum(viewNum);
+		}
+		//评论数
+		Integer commentNum = null;
+		if(!page.select(".cmtNum, .linkComment, .js_cmtNum, .comment-num, .js-tiecount").isEmpty()){
+			String txt = page.select(".cmtNum, .linkComment, .js_cmtNum, .comment-num, .js-tiecount").first().text();
+			if(!StringUtils.isEmpty(txt)){
+				try {
+					commentNum = Integer.parseInt(txt);
+				}catch (Exception e){
+				}
 			}
-			//评论数
-			Integer commentNum = null;
-			if(!page.select(".cmtNum, .linkComment, .js_cmtNum, .comment-num, .js-tiecount").isEmpty()){
-				String txt = page.select(".cmtNum, .linkComment, .js_cmtNum, .comment-num, .js-tiecount").first().text();
-				if(!StringUtils.isEmpty(txt)){
+		}else {
+			if (!page.select(".article-pl").isEmpty()) {
+				String txt = page.select(".article-pl").first().text().replace("评论", "").trim();
+				if (!StringUtils.isEmpty(txt)) {
 					try {
 						commentNum = Integer.parseInt(txt);
 					}catch (Exception e){
 					}
 				}
-			}else {
-				if (!page.select(".article-pl").isEmpty()) {
-					String txt = page.select(".article-pl").first().text().replace("评论", "").trim();
-					if (!StringUtils.isEmpty(txt)) {
-						try {
-							commentNum = Integer.parseInt(txt);
-						}catch (Exception e){
-						}
-					}
-				}
 			}
-			if(commentNum != null){
-				webPageDetail.setCommentNum(commentNum);
-			}
-			//爬取时间
-			webPageDetail.setCrawlTime(new Date());
-			System.out.println("保存关键字：" + webPageDetail.getKeyword());
-			webPageDetailMapper.insertSelective(webPageDetail);
-			MonitorExecute.saveCounter.getAndIncrement();
 		}
+		if(commentNum != null){
+			webPageDetail.setCommentNum(commentNum);
+		}
+		//爬取时间
+		webPageDetail.setCrawlTime(new Date());
+		logger.info("保存关键字：" + webPageDetail.getKeyword());
+		webPageDetailMapper.insertSelective(webPageDetail);
+		return webPageDetail.getId();
 	}
 
 	/**
@@ -269,9 +275,9 @@ public class BaiduSearchRsProcessor implements Processor{
 	 * @param page
 	 * @param next
 	 */
-	private void parseWebSource(Page page, CrawlDatums next){
+	private void parseWebSource(Page page, CrawlDatums next, long urlDetailId){
 		List<WebPageResource> resourceLs = new LinkedList<>();
-		String srcUrl = page.getResponse().getRealUrl().toString();
+		String url = page.getResponse().getRealUrl().toString();
 		String domain = page.getResponse().getRealUrl().getHost();
 		String path = page.getResponse().getRealUrl().getPath();
 
@@ -289,22 +295,21 @@ public class BaiduSearchRsProcessor implements Processor{
 				}else if(src.startsWith("/")){ //以域名为基的相对路径
 					src = domain+src;
 				}else if(src.startsWith("./")){ //当前目录下
-					src = srcUrl + src.substring(1);
+					src = url + src.substring(1);
 				}else if(src.startsWith("../")){ //上一目录下
-					src = srcUrl.substring(0, srcUrl.lastIndexOf("/")) + src.substring(2);
+					src = url.substring(0, url.lastIndexOf("/")) + src.substring(2);
 				}
 				else { //图片文件目录和当前文件在同一目录下的相对路径
 					src = domain + path.substring(0, path.lastIndexOf("/")+1) + src;
-					//System.out.println("src：" + src);
 				}
-				WebPageResource resource = new WebPageResource(srcUrl, DatumConstants.RESOURCE_TYPE_PIC, new Date(), src);
+				WebPageResource resource = new WebPageResource(urlDetailId, url, src, DatumConstants.RESOURCE_TYPE_PIC, new Date());
 				resourceLs.add(resource);
 			}
 		}
 
 		//解析视频地址
 		String videoUrl = null;
-		if(page.matchUrl("https://.*\\.ku6\\.com.*")) {//酷6视频地址
+		if(url.contains("ku6.com")) {//酷6视频地址
 			if (page.getHtml().contains("flvURL")) {
 				String tmp = page.getHtml().substring(page.getHtml().indexOf("flvURL"), page.getHtml().indexOf("flvURL") + 100);
 				videoUrl = tmp.substring(tmp.indexOf("http"), tmp.indexOf("\","));
@@ -320,7 +325,7 @@ public class BaiduSearchRsProcessor implements Processor{
 				}
 				videoUrl = source.attr("src");
 			}
-		}else if(page.matchUrl("http://baishi\\.baidu\\.com/watch/.*")) { //百度视频
+		}else if(url.startsWith("http://baishi.baidu.com/watch/")) { //百度视频
 			int start = page.getHtml().indexOf("video=http");
 			if (start == -1) {
 				logger.info("baidu video parse fail:" + page.getUrl());
@@ -334,7 +339,7 @@ public class BaiduSearchRsProcessor implements Processor{
 			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();
 			}
-		}else if (page.matchUrl("http://video\\.eastday\\.com.*")) { //东方头条视频
+		}else if (url.startsWith("http://video.eastday.com")) { //东方头条视频
 			int start = page.getHtml().indexOf("mp4 = ");
 			if (start == -1) {
 				logger.info("eastday video parse fail:" + page.getUrl());
@@ -343,13 +348,13 @@ public class BaiduSearchRsProcessor implements Processor{
 			String tmp = page.getHtml().substring(start + 7, start + 100);
 			int end = tmp.indexOf("mp4\";");
 			videoUrl = "http:" + tmp.substring(0, end + 3);
-		}else if (page.matchUrl("http://xiyou\\.cctv\\.com/v-.*")) {//cctv视频播放页面，不是视频地址
+		}else if (url.startsWith("http://xiyou.cctv.com/v-")) {//cctv视频播放页面，不是视频地址
 			String videoId = page.getUrl().substring(page.getUrl().indexOf("v-")+2, page.getUrl().indexOf(".html"));
 			//爬取cctv视频地址信息接口
-			next.add(datumGenerator.generateCCTVVideo(videoId, page.getUrl(), page.meta("keyword")));
+			next.add(datumGenerator.generateCCTVVideo(videoId, page.getUrl(), page.meta("keyword"), urlDetailId));
 		}
 		if(videoUrl != null){
-			WebPageResource resource = new WebPageResource(srcUrl, DatumConstants.RESOURCE_TYPE_VIDEO, new Date(), videoUrl);
+			WebPageResource resource = new WebPageResource(urlDetailId, url, videoUrl, DatumConstants.RESOURCE_TYPE_VIDEO, new Date());
 			resourceLs.add(resource);
 		}
 		//插入数据库
@@ -375,7 +380,7 @@ public class BaiduSearchRsProcessor implements Processor{
 				String title = a.text();
 				if(href.startsWith("http") && title.contains(page.meta("keyword"))) { //过滤与关键字无关的超链接
 					try {
-						if(limitedDomain(new URL(href).getHost(), page)){ //过滤域名
+						if(DomainUtil.limitedDomain(new URL(href).getHost(), page)){ //过滤域名
 							continue;
 						}
 					} catch (MalformedURLException e) {
@@ -394,38 +399,4 @@ public class BaiduSearchRsProcessor implements Processor{
 		}
 	}
 
-
-	/**
-	 * 根据用户输入域名地址列表，判断是否限制域名
-	 * @param domain
-	 */
-	private boolean limitedDomain(String domain, Page page){
-		if(HduCrawler.domainList != null){ //限制域名
-			switch (HduCrawler.limitType) {
-				case "current": //限当前域名
-					if(page.meta("domain").equals(domain)){
-						return false;
-					}else {
-						return true;
-					}
-				case "list": //限列表
-					boolean isContains = false;
-					for(String dm : HduCrawler.domainList){
-						if(domain.equals(dm)){
-							isContains = true;
-							break;
-						}
-					}
-					if(!isContains){
-						return true;
-					}
-					break;
-				default:
-					break;
-			}
-			return false;
-		}else {
-			return false;
-		}
-	}
 }

@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 @Scope("prototype")
 public class MonitorThread extends Thread{
 	
-	public static boolean flag ; //是否监控
+	public static boolean flag = false; //是否监控
 	public static boolean isRunning = false;
 	private int maxCount = 50000;
 	
@@ -75,7 +75,7 @@ public class MonitorThread extends Thread{
         //生成日报的初始记录
         JobDaily jobDaily = new JobDaily();
         jobDaily.setJobId(jobInfo.getJobId());
-        jobDaily.setStartTime(new Date());
+        jobDaily.setStartTime(new Date(new Date().getTime()/1000*1000));
         jobDaily.setJobInterval(MonitorExecute.interval);
         jobDailyMapper.insertSelective(jobDaily);
         MonitorExecute.dailyId = jobDaily.getId();
@@ -132,7 +132,7 @@ public class MonitorThread extends Thread{
 	    //更新日报信息
 	    JobDaily jobDaily = jobDailyMapper.selectByPrimaryKey(MonitorExecute.dailyId);
 	    //花费时间
-	    Date endTime = new Date();
+	    Date endTime = new Date(new Date().getTime()/1000*1000);
 	    int totalCount = MonitorExecute.counter.intValue();
 		long totalSold = MonitorExecute.counter.longValue();
 	    long totalSeconds = (endTime.getTime()-jobDaily.getStartTime().getTime())/1000;

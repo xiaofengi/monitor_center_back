@@ -13,6 +13,7 @@ import org.hdu.crawler.processor.baidu.video.Ku6PlayProcessor;
 import org.hdu.crawler.processor.baidu.video.PlayPageProcessor;
 import org.hdu.crawler.processor.facebook.FbFriendsListProcessor;
 import org.hdu.crawler.processor.facebook.FbSearchProcessor;
+import org.hdu.crawler.processor.google.GoogleSearchProcessor;
 import org.hdu.crawler.processor.youtube.YoutubeListProcessor;
 import org.hdu.crawler.processor.youtube.YoutubePlayProcessor;
 import org.springframework.beans.BeansException;
@@ -41,6 +42,7 @@ public class ProcessorManager implements ApplicationContextAware{
 
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		processors.put(ProcessorType.PROCESSOR_TYPE_GOOGLE_SEARCH, applicationContext.getBean(GoogleSearchProcessor.class));
 		processors.put(ProcessorType.PROCESSOR_TYPE_BAIDU_SEARCH, applicationContext.getBean(BaiduSearchProcessor.class));
 		processors.put(ProcessorType.PROCESSOR_TYPE_BAIDU_SEARCH_RS, applicationContext.getBean(BaiduSearchRsProcessor.class));
 		processors.put(ProcessorType.PROCESSOR_TYPE_BAIDU_VIDEO_SEARCH, applicationContext.getBean(BaiduVideoSearchProcessor.class));

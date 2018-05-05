@@ -96,7 +96,6 @@ public class HduCrawler extends BreadthCrawler implements ApplicationContextAwar
 	}
 	
 	public void start(List<String> keywordList, Integer depth, Integer count, List<String> domainList, String limitType) {
-		HduCrawler.isStart = true; //标记爬虫已启动
 		long startTime = System.currentTimeMillis();
 		if(depth != null){
 			this.depth = depth;
@@ -116,6 +115,7 @@ public class HduCrawler extends BreadthCrawler implements ApplicationContextAwar
 		logger.info("crawler start");
 		notifyBeginCrawler();
 		logger.info("request start");
+		HduCrawler.isStart = true; //标记爬虫已启动
 		try {
 			setResumable(resumable);
 			setTopN(topN);
@@ -127,12 +127,12 @@ public class HduCrawler extends BreadthCrawler implements ApplicationContextAwar
 		}
 		logger.info("爬取总量：" + MonitorExecute.counter.get());
 		logger.info("入库总量：" + MonitorExecute.saveCounter.get());
+		HduCrawler.isStart = false; //标记爬虫已停止
 		logger.info("request end");
         notifyEndCrawler();
         logger.info("crawler end" );
-		System.out.println("爬取总时间:" + (System.currentTimeMillis()-startTime)/1000 + "秒");
+		logger.info("爬取总时间:" + (System.currentTimeMillis()-startTime)/1000 + "秒");
 		//重置变量
-		HduCrawler.isStart = false;
 		this.count = 50000;
 		this.depth = 80;
 		HduCrawler.domainList = null;

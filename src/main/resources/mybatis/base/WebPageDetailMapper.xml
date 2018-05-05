@@ -50,11 +50,11 @@
       #{commentNum,jdbcType=INTEGER}, #{crawlTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
       )
   </insert>
-  <insert id="insertSelective" parameterType="org.hdu.back.model.WebPageDetail" >
+  <insert id="insertSelective" useGeneratedKeys="true" parameterType="org.hdu.back.model.WebPageDetail" >
     <selectKey resultType="java.lang.Long" keyProperty="id" order="AFTER" >
       SELECT LAST_INSERT_ID()
     </selectKey>
-    replace into web_page_detail
+    insert ignore into web_page_detail
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="urlMd5 != null" >
         url_md5,

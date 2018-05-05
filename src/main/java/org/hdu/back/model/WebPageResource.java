@@ -5,7 +5,11 @@ import java.util.Date;
 public class WebPageResource {
     private Long id;
 
+    private Long urlDetailId;
+
     private String url;
+
+    private String resourceUrl;
 
     private Short resourceType;
 
@@ -13,25 +17,31 @@ public class WebPageResource {
 
     private Date updateTime;
 
-    private String resourceUrl;
-    
     public WebPageResource() {
-	}
+    }
 
-    public WebPageResource(String url, Short resourceType, Date crawlTime, String resourceUrl) {
-		super();
-		this.url = url;
-		this.resourceType = resourceType;
-		this.crawlTime = crawlTime;
-		this.resourceUrl = resourceUrl;
-	}
+    public WebPageResource(Long urlDetailId, String url, String resourceUrl, Short resourceType, Date crawlTime) {
+        this.urlDetailId = urlDetailId;
+        this.url = url;
+        this.resourceUrl = resourceUrl;
+        this.resourceType = resourceType;
+        this.crawlTime = crawlTime;
+    }
 
-	public Long getId() {
+    public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getUrlDetailId() {
+        return urlDetailId;
+    }
+
+    public void setUrlDetailId(Long urlDetailId) {
+        this.urlDetailId = urlDetailId;
     }
 
     public String getUrl() {
@@ -40,6 +50,14 @@ public class WebPageResource {
 
     public void setUrl(String url) {
         this.url = url == null ? null : url.trim();
+    }
+
+    public String getResourceUrl() {
+        return resourceUrl;
+    }
+
+    public void setResourceUrl(String resourceUrl) {
+        this.resourceUrl = resourceUrl == null ? null : resourceUrl.trim();
     }
 
     public Short getResourceType() {
@@ -64,13 +82,5 @@ public class WebPageResource {
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
-    }
-
-    public String getResourceUrl() {
-        return resourceUrl;
-    }
-
-    public void setResourceUrl(String resourceUrl) {
-        this.resourceUrl = resourceUrl == null ? null : resourceUrl.trim();
     }
 }
