@@ -23,34 +23,6 @@ public class SeedGenerator implements CrawlerBeginListener{
 	@Autowired
 	private DatumGenerator datumGenerator;
 	
-	/*public void addSeed(Crawler crawler) {
-		switch (crawlerType) {
-			case CrawlerType.BAIDU_SEARCH:
-				generateBaiduSearch(crawler);
-				break;
-			case CrawlerType.BAIDU_VIDEO_SEARCH:
-				generateBaiduVideoSearch(crawler);
-				break;
-			case CrawlerType.PLAY_PAGE:
-				generatePlayPage(crawler);
-				break;
-			case CrawlerType.KU6_PLAY_PAGE:
-				generateKu6PlayPage(crawler);
-				break;
-			case CrawlerType.YOUTUBE_SEARCH:
-				generateYoutubeList(crawler);
-				break;
-			case CrawlerType.FACEBOOK_SEARCH:
-				generateFbSearch(crawler);
-				break;
-			case CrawlerType.FACEBOOK_FRIENDS_LIST:
-				generateFbFriendsList(crawler);
-				break;
-		default:
-			break;
-		}
-	}*/
-	
 	public void addSeed(Crawler crawler, List<String> keywordList, List<Map<String, Object>> domainList) {
 		switch (crawlerType) {
 			case CrawlerType.SEARCH:
@@ -92,7 +64,7 @@ public class SeedGenerator implements CrawlerBeginListener{
 	 * @param domainInfoList
 	 */
 	private void generateSearch(Crawler crawler, List<String> keywordList, List<Map<String, Object>> domainInfoList) {
-		if(HduCrawler.limitType==null || HduCrawler.limitType.equals("all")){ //不限域名
+		if(HduCrawler.limitType==null || HduCrawler.limitType.equals("all") || domainInfoList.isEmpty()){ //不限域名
 			for(String keyword : keywordList){
 				for(int i=0; i<=750; i+=50){ //抓取下一页，目前百度只能搜索到760条结果
 					crawler.addSeed(datumGenerator.generateBaiduSearchList(keyword, i));

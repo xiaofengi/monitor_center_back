@@ -142,18 +142,32 @@ public class BaiduSearchRsProcessor implements Processor{
 		//标题
 		webPageDetail.setTitle(title);
 		//文章来源
+		String src = null;
 		if(!page.select("#ne_article_source, .fabiao, .a_source, .source").isEmpty()){
-			String src = page.select("#ne_article_source, .fabiao, .a_source, .source").first().text();
+			src = page.select("#ne_article_source, .fabiao, .a_source, .source").first().text();
+		}else if (!page.select("[ref=nofollow]").isEmpty()) {
+			src = page.select("[ref=nofollow]").first().text();
+		}
+		if(src != null){
 			webPageDetail.setSrc(src);
 		}
 		//创建时间
 		String createTimeStr = null;
+		String author = null;
 		if(!page.select(".time, .utime, .time, .date, .a_time").isEmpty()){
 			createTimeStr = page.select(".time, .utime, .time, .date, .a_time").first().text();
 		}else if(!page.select(".post_time_source").isEmpty()) {
 			createTimeStr = page.select(".post_time_source").first().text();
 			if(createTimeStr.indexOf("来源") != -1) {
 				createTimeStr = createTimeStr.substring(0, createTimeStr.indexOf("来源")).trim();
+			}
+		}else if (!page.select("#artical_sth").isEmpty()) {
+			String articalSth = page.select("#artical_sth").first().text();
+			if(articalSth.indexOf("来源") != -1) {
+				createTimeStr = articalSth.substring(0, articalSth.indexOf("来源")).trim();
+			}
+			if(articalSth.indexOf("作者：") != -1){
+				author = articalSth.substring(articalSth.indexOf("作者："));
 			}
 		}
 		if(createTimeStr != null){
@@ -177,7 +191,6 @@ public class BaiduSearchRsProcessor implements Processor{
 			}
 		}
 		//作者
-		String author = null;
 		if(!page.select(".author, .author-name, .from, .ep-editor, .show_author, .qq_editor").isEmpty()){
 			author = page.select(".author, .author-name, .from, .ep-editor, .show_author, .qq_editor").first().text();
 		}else if(!page.select(".user_info").isEmpty()){
@@ -209,8 +222,10 @@ public class BaiduSearchRsProcessor implements Processor{
 		String content = null;
 		if(!page.select("article").isEmpty()){
 			content = page.select("article").first().text();
-		}else if(!page.select(".article_content, .topic-content, .main-content, .article-content-wrap, .sec_article, .post_text, .article, .Cnt-Main-Article-QQ, yc_con_txt").isEmpty()){
-			content = page.select(".article_content, .topic-content, .main-content, .article-content-wrap, .sec_article, .post_text, .article, .Cnt-Main-Article-QQ, yc_con_txt").first().text();
+		}else if(!page.select(".article_content, .topic-content, .main-content, .article-content-wrap, .sec_article, .post_text, .article, .Cnt-Main-Article-QQ, .yc_con_txt, .artical_real, .articalContent").isEmpty()){
+			content = page.select(".article_content, .topic-content, .main-content, .article-content-wrap, .sec_article, .post_text, .article, .Cnt-Main-Article-QQ, .yc_con_txt, .artical_real, .articalContent").first().text();
+		}else if(!page.select("#ozoom, #QuestionAnswers-answers, #artical_real").isEmpty()){
+			content = page.select("#ozoom, #QuestionAnswers-answers, #artical_real").first().text();
 		}
 		if(content != null){
 			webPageDetail.setContent(content);
@@ -249,14 +264,20 @@ public class BaiduSearchRsProcessor implements Processor{
 				}catch (Exception e){
 				}
 			}
-		}else {
-			if (!page.select(".article-pl").isEmpty()) {
-				String txt = page.select(".article-pl").first().text().replace("评论", "").trim();
-				if (!StringUtils.isEmpty(txt)) {
-					try {
-						commentNum = Integer.parseInt(txt);
-					}catch (Exception e){
-					}
+		}else if (!page.select(".article-pl").isEmpty()) {
+			String txt = page.select(".article-pl").first().text().replace("评论", "").trim();
+			if (!StringUtils.isEmpty(txt)) {
+				try {
+					commentNum = Integer.parseInt(txt);
+				}catch (Exception e){
+				}
+			}
+		}else if (!page.select(".cmt").isEmpty()) {
+			String txt = page.select(".cmt").first().text().replace("人参与", "").trim();
+			if (!StringUtils.isEmpty(txt)) {
+				try {
+					commentNum = Integer.parseInt(txt);
+				}catch (Exception e){
 				}
 			}
 		}

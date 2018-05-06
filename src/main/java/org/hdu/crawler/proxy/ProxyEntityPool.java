@@ -69,6 +69,18 @@ public class ProxyEntityPool implements CrawlerBeginListener, CrawlerEndListener
 		return null;
 	}
 
+	public void failProxyEntity(ProxyEntity entity) {
+		if(entity != null) {
+			logger.info("error proxy: " + entity.getHost() + ":" + entity.getPort());
+			entity.setEnable(false);
+		}		
+	}
+
+	public void successProxyEntity(ProxyEntity entity) {
+		if(entity != null) {
+		}		
+	}
+	
 	@Override
 	public void crawlerBegin() {
 		createPool();

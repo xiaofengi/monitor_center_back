@@ -32,7 +32,8 @@ public class DatumGenerator {
 		return new CrawlDatum(String.format(DatumConstants.GOOGLE_SEARCH_URL, wd, start))
 				.meta(ProcessorType.PROCESSOR_TYPE, ProcessorType.PROCESSOR_TYPE_GOOGLE_SEARCH)
 				.meta("keyword", keyword)
-				.meta("start", String.valueOf(start));
+				.meta("start", String.valueOf(start))
+				.meta("referer", "https://www.google.com/");
 	}
 
 	/**
@@ -54,7 +55,8 @@ public class DatumGenerator {
 				.meta("keyword", keyword)
 				.meta("domain", domain)
 				.meta("start", String.valueOf(start))
-				.meta("proxyEnable", "true");
+				.meta("proxyEnable", "true")
+				.meta("referer", "https://www.google.com/");
 	}
 
 	/**

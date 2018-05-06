@@ -4,7 +4,8 @@
   
     <select id="getResult" resultType="Map">
 	    select
-	    	distinct(wpd.url) url,
+	    	wpd.id,
+	    	wpd.url,
 	    	wpd.domain,
 	    	wpd.title,
 	    	wpd.author,
@@ -110,7 +111,8 @@
 	        	</if>
 	        </if> 
 	    </where>
-	    limit 20
+	    group by id
+	    limit 50
   	</select>
   
 </mapper>

@@ -3,8 +3,11 @@ package org.hdu.crawler.crawler;
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.util.List;
+
 import javax.annotation.Resource;
 import org.hdu.back.model.ProxyEntity;
+import org.hdu.crawler.constants.DatumConstants;
 import org.hdu.crawler.constants.ProcessorType;
 import org.hdu.crawler.listener.CrawlerBeginListener;
 import org.hdu.crawler.listener.CrawlerEndListener;
@@ -28,23 +31,46 @@ public class HduRequester implements Requester, CrawlerBeginListener, CrawlerEnd
 	@Resource
 	private ProxyEntityPool proxyEntityPool;
 	
+	private String googleCookie_SIDCC = "AEfoLebltNyVi1Y6LMsy0zEqbwxgo1UcKEV4EWBSLivlPZUjrUskom86qjGxeJTVMN9K56NecdA";
+	private String googleCookie_1P_JAR = "2018-05-06-05";
+	private String googleCookie_GOOGLE_ABUSE_EXEMPTION = "ID=44d35cbd808c35db:TM=1525582439:C=r:IP=207.246.90.158-:S=APGng0v5A9maN9Jbjk-2QQpa-cd9NqY0jA";
+	
 	@Override
 	public HttpResponse getResponse(CrawlDatum crawlDatum) throws Exception {
 		HttpResponse res = null;
 		HttpRequest request = null;
+		ProxyEntity proxyEntity = null;
 		try{
 			request = new HttpRequest(crawlDatum);
 			request.setMAX_REDIRECT(4);
 			setHeader(crawlDatum, request);
 			if(crawlDatum.meta("proxyEnable") != null){ //设置代理
-				ProxyEntity proxyEntity = proxyEntityPool.getOne();
-				setProxy(request, proxyEntity);
-				logger.info(crawlDatum.getUrl()+"使用代理"+proxyEntity.getHost()+":"+proxyEntity.getPort());
+				proxyEntity = proxyEntityPool.getOne();
+				if(proxyEntity != null){
+					setProxy(request, proxyEntity);
+					logger.info(crawlDatum.getUrl()+"使用代理"+proxyEntity.getHost()+":"+proxyEntity.getPort());
+				}else {
+					logger.error("获取不到有效的代理实体");
+				}
 			}
 			res = request.getResponse();
-		}  catch (Exception e) {
+			//获取返回的google cookies信息
+			List<String> cookies = res.getHeader("Set-Cookie");
+			if(!cookies.isEmpty()){
+				for(String cookie : cookies){
+					if(cookie.startsWith("SIDCC=")){
+						logger.info("SIDCC的信息：" + cookie);
+						googleCookie_SIDCC = cookie.substring("SIDCC=".length(), cookie.indexOf(";"));
+					}else if (cookie.startsWith("1P_JAR=")) {
+						googleCookie_1P_JAR = cookie.substring("1P_JAR=".length(), cookie.indexOf(";"));
+					}
+				}
+			}
+		}catch (Exception e) {
+			proxyEntityPool.failProxyEntity(proxyEntity);
 			throw e;
 		}
+		proxyEntityPool.successProxyEntity(proxyEntity);
 		return res;
 	}
 	
@@ -54,13 +80,17 @@ public class HduRequester implements Requester, CrawlerBeginListener, CrawlerEnd
 	}
 
 	private void setHeader(CrawlDatum crawlDatum, HttpRequest request) {
-		request.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36");
+		request.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
 		if(crawlDatum.meta("referer") != null) {
 			request.setHeader("referer", crawlDatum.meta("referer"));
 		}
 		switch (crawlDatum.meta(ProcessorType.PROCESSOR_TYPE)) {
 			case ProcessorType.PROCESSOR_TYPE_GOOGLE_SEARCH:
-				request.setCookie("1P_JAR=2018-05-05-06; SIDCC=AEfoLeZGSfjFsq4AFGqP9r6Y3uFYnqmIv4hsTSHwuiXuLY0he0sN2LkHqoobliG1MCwsnJzMEA;");
+			case ProcessorType.PROCESSOR_TYPE_GOOGLE_SEARCH_RS:
+				String cookies = String.format(DatumConstants.GOOGLE_COOKIES, googleCookie_SIDCC, googleCookie_1P_JAR, googleCookie_GOOGLE_ABUSE_EXEMPTION);
+				logger.info("正在使用google cookies： " + cookies);
+				request.setCookie(cookies);
+				request.setHeader("x-client-data", "CJC2yQEIpbbJAQjBtskBCKmdygEIuZ3KAQiln8oBCKijygE=");
 				break;
 			case ProcessorType.PROCESSOR_TYPE_BAIDU_SEARCH_RS:
 				break;

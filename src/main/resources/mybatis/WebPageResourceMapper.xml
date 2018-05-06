@@ -7,7 +7,7 @@
   		web_page_resource (url_detail_id, url, resource_url, resource_type, crawl_time)
   	values
   		<foreach collection="resourceLs" item="item" separator=",">
-			values (#{item.urlDetailId,jdbcType=BIGINT}, #{item.url,jdbcType=VARCHAR}, #{item.resourceUrl,jdbcType=VARCHAR},
+			(#{item.urlDetailId,jdbcType=BIGINT}, #{item.url,jdbcType=VARCHAR}, #{item.resourceUrl,jdbcType=VARCHAR},
 			#{item.resourceType,jdbcType=SMALLINT}, #{item.crawlTime,jdbcType=TIMESTAMP})
   		</foreach>
   </insert>
