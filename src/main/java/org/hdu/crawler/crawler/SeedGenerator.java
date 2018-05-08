@@ -74,11 +74,11 @@ public class SeedGenerator implements CrawlerBeginListener{
 			for(String keyword : keywordList){
 				for(Map<String, Object> domainInfo : domainInfoList){
 					if(domainInfo.get("location").equals("国内")){
-						for(int i=0; i<=750; i+=50){ //抓取下一页，目前谷歌只能搜索到350多条结果
+						for(int i=0; i<=750; i+=50){ //抓取下一页，目前百度只能搜索到350多条结果
 							crawler.addSeed(datumGenerator.generateBaiduSearchList(keyword, domainInfo.get("domain").toString(), i));
 						}
 					}else {
-						for(int i=0; i<=350; i+=50){ //抓取下一页，目前谷歌只能搜索到350多条结果
+						for(int i=0; i<=350; i+=10){ //抓取下一页，目前谷歌只能搜索到350多条结果
 							crawler.addSeed(datumGenerator.generateGoogleSearchList(keyword, domainInfo.get("domain").toString(), i));
 						}
 					}
@@ -90,14 +90,14 @@ public class SeedGenerator implements CrawlerBeginListener{
 	private void generateGoogleSearch(Crawler crawler, List<String> keywordList, List<String> domainList) {
 		if(HduCrawler.limitType==null || HduCrawler.limitType.equals("all")){ //不限域名
 			for(String keyword : keywordList){
-				for(int i=0; i<=350; i+=50){ //抓取下一页，目前谷歌只能搜索到350多条结果
+				for(int i=0; i<=350; i+=10){ //抓取下一页，目前谷歌只能搜索到350多条结果
 					crawler.addSeed(datumGenerator.generateGoogleSearchList(keyword, i));
 				}
 			}
 		}else { //限制
 			for(String keyword : keywordList){
 				for(String domain : domainList){
-					for(int i=0; i<=350; i+=50){ //抓取下一页，目前谷歌只能搜索到350多条结果
+					for(int i=0; i<=350; i+=10){ //抓取下一页，目前谷歌只能搜索到350多条结果
 						crawler.addSeed(datumGenerator.generateGoogleSearchList(keyword, domain, i));
 					}
 				}

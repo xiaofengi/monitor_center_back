@@ -25,8 +25,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
@@ -59,9 +57,9 @@ public class GoogleSearchRsProcessor implements Processor{
             return;
         }
         String title = page.select("title").first().text();
-        if(!title.contains(page.meta("keyword"))) { //过滤与关键字不相关的网页
+        /*if(!title.contains(page.meta("keyword"))) { //过滤与关键字不相关的网页
             return;
-        }
+        }*/
 
         long urlDetailId = parseWebPageDetail(page);
         MonitorExecute.saveCounter.getAndIncrement();
@@ -88,13 +86,28 @@ public class GoogleSearchRsProcessor implements Processor{
         //标题
         webPageDetail.setTitle(title);
         //文章来源
+        String src = null;
         if(!page.select("#ne_article_source, .fabiao, .a_source, .source").isEmpty()){
-            String src = page.select("#ne_article_source, .fabiao, .a_source, .source").first().text();
+            src = page.select("#ne_article_source, .fabiao, .a_source, .source").first().text();
+        }else if(!page.select(".F11").isEmpty()){ //博讯
+            String f11Text = page.select(".F11").first().text();
+            if(f11Text.contains("来源：")){
+                String tmp = f11Text.substring(f11Text.indexOf("来源："));
+                int index = tmp.indexOf("&nbsp;")!=-1 ? tmp.indexOf("&nbsp;"):tmp.indexOf("\n")!=-1?tmp.indexOf("\n"):5;
+                src = tmp.substring(3, index);
+            }
+        }
+        if(src != null){
             webPageDetail.setSrc(src);
         }
         //创建时间
         String createTimeStr = null;
-        if(!page.select(".time, .utime, .time, .date, .a_time").isEmpty()){
+        if(!page.select(".F11 center font small").isEmpty()){
+            String tmp = page.select(".F11 center font small").first().text();
+            if(tmp.indexOf("博讯北京时间") != -1){
+                createTimeStr = tmp.substring(tmp.indexOf("博讯北京时间")+6);
+            }
+        }else if(!page.select(".time, .utime, .time, .date, .a_time").isEmpty()){
             createTimeStr = page.select(".time, .utime, .time, .date, .a_time").first().text();
         }else if(!page.select(".post_time_source").isEmpty()) {
             createTimeStr = page.select(".post_time_source").first().text();
@@ -103,7 +116,8 @@ public class GoogleSearchRsProcessor implements Processor{
             }
         }
         if(createTimeStr != null){
-            if(createTimeStr.matches("^\\d{4}年\\d{2}月\\d{2}日 \\d{2}:\\d{2}.*")){
+            webPageDetail.setCreateTime(createTimeStr);
+            /*if(createTimeStr.matches("^\\d{4}年\\d{2}月\\d{2}日 \\d{2}:\\d{2}.*")){
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日 HH:mm");
                 Date createTime = null;
                 try {
@@ -120,7 +134,7 @@ public class GoogleSearchRsProcessor implements Processor{
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
-            }
+            }*/
         }
         //作者
         String author = null;
@@ -153,7 +167,15 @@ public class GoogleSearchRsProcessor implements Processor{
         }
         //内容
         String content = null;
-        if(!page.select("article").isEmpty()){
+        if(!page.select(".F11").isEmpty()) { //博讯
+            String f11Text = page.select(".F11").first().text();
+            if (!page.select(".F11 center").isEmpty()) { //移去文章标题部分
+                String centerText = page.select(".F11 center").first().text();
+                content = f11Text.substring(centerText.length());
+            }else {
+                content = f11Text;
+            }
+        }else if(!page.select("article").isEmpty()){
             content = page.select("article").first().text();
         }else if(!page.select(".article_content, .topic-content, .main-content, .article-content-wrap, .sec_article, .post_text, .article, .Cnt-Main-Article-QQ, .yc_con_txt, .theme-content").isEmpty()){
             content = page.select(".article_content, .topic-content, .main-content, .article-content-wrap, .sec_article, .post_text, .article, .Cnt-Main-Article-QQ, .yc_con_txt, .theme-content").first().text();
@@ -187,8 +209,8 @@ public class GoogleSearchRsProcessor implements Processor{
         }
         //评论数
         Integer commentNum = null;
-        if(!page.select(".cmtNum, .linkComment, .js_cmtNum, .comment-num, .js-tiecount").isEmpty()){
-            String txt = page.select(".cmtNum, .linkComment, .js_cmtNum, .comment-num, .js-tiecount").first().text();
+        if(!page.select(".cmtNum, .linkComment, .js_cmtNum, .comment-num, .js-tiecount, .comment-count").isEmpty()){
+            String txt = page.select(".cmtNum, .linkComment, .js_cmtNum, .comment-num, .js-tiecount, .comment-count").first().text();
             if(!StringUtils.isEmpty(txt)){
                 try {
                     commentNum = Integer.parseInt(txt);
@@ -299,7 +321,7 @@ public class GoogleSearchRsProcessor implements Processor{
             if (a.hasAttr("href")) {
                 String href = a.attr("abs:href");//获取超链接
                 String title = a.text();
-                if(href.startsWith("http") && title.contains(page.meta("keyword"))) { //过滤与关键字无关的超链接
+                if(href.startsWith("http") /*&& title.contains(page.meta("keyword"))*/) { //过滤与关键字无关的超链接
                     try {
                         if(DomainUtil.limitedDomain(new URL(href).getHost(), page)){ //过滤域名
                             continue;
@@ -310,7 +332,7 @@ public class GoogleSearchRsProcessor implements Processor{
                     String srcUrl = page.getResponse().getRealUrl().toString();
                     WebPageRelation webPageRelation = new WebPageRelation(href, srcUrl, new Date());
                     relationLs.add(webPageRelation);
-                    next.add(datumGenerator.generateBaiduSearchRs(href, page.meta("keyword"), page.meta("domain"), srcUrl));
+                    next.add(datumGenerator.generateGoogleSearchRs(href, page.meta("keyword"), page.meta("domain"), srcUrl));
                 }
             }
         }

@@ -29,11 +29,11 @@ public class DatumGenerator {
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
-		return new CrawlDatum(String.format(DatumConstants.GOOGLE_SEARCH_URL, wd, start))
+		return new CrawlDatum(String.format(DatumConstants.GOOGLE_HK_SEARCH_URL, wd, start))
 				.meta(ProcessorType.PROCESSOR_TYPE, ProcessorType.PROCESSOR_TYPE_GOOGLE_SEARCH)
 				.meta("keyword", keyword)
 				.meta("start", String.valueOf(start))
-				.meta("referer", "https://www.google.com/");
+				.meta("referer", "https://www.google.com.hk/");
 	}
 
 	/**
@@ -50,13 +50,13 @@ public class DatumGenerator {
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
-		return new CrawlDatum(String.format(DatumConstants.GOOGLE_SEARCH_URL, wd, start))
+		return new CrawlDatum(String.format(DatumConstants.GOOGLE_HK_SEARCH_URL, wd, start))
 				.meta(ProcessorType.PROCESSOR_TYPE, ProcessorType.PROCESSOR_TYPE_GOOGLE_SEARCH)
 				.meta("keyword", keyword)
 				.meta("domain", domain)
 				.meta("start", String.valueOf(start))
 				.meta("proxyEnable", "true")
-				.meta("referer", "https://www.google.com/");
+				.meta("referer", "https://www.google.com.hk/");
 	}
 
 	/**

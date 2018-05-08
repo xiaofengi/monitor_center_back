@@ -3,6 +3,7 @@ package org.hdu.crawler.crawler;
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.net.URL;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -11,6 +12,7 @@ import org.hdu.crawler.constants.DatumConstants;
 import org.hdu.crawler.constants.ProcessorType;
 import org.hdu.crawler.listener.CrawlerBeginListener;
 import org.hdu.crawler.listener.CrawlerEndListener;
+import org.hdu.crawler.proxy.Client;
 import org.hdu.crawler.proxy.ProxyEntityPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,19 +34,20 @@ public class HduRequester implements Requester, CrawlerBeginListener, CrawlerEnd
 	private ProxyEntityPool proxyEntityPool;
 	
 	private String googleCookie_SIDCC = "AEfoLebltNyVi1Y6LMsy0zEqbwxgo1UcKEV4EWBSLivlPZUjrUskom86qjGxeJTVMN9K56NecdA";
-	private String googleCookie_1P_JAR = "2018-05-06-05";
+	private String googleCookie_1P_JAR = "2018-05-07-12;";
 	private String googleCookie_GOOGLE_ABUSE_EXEMPTION = "ID=44d35cbd808c35db:TM=1525582439:C=r:IP=207.246.90.158-:S=APGng0v5A9maN9Jbjk-2QQpa-cd9NqY0jA";
-	
+	private String googleCookie_NID = "129=P5QNniN0pMv-doRlF_Bze2-qUiKus6txB-75MVdZoocrsJv3dD_n8IhotN90594fC5u8fKak1XIZS7F-yxU8MuIxycri1r7DdHS2idR8e0p8jQUvaC1mfn2sCk7LEq5mC5z3KU33HUAxWQFxWot4-FljHKpmZMpaZvzre0y16_ARqeJ7thKZNcaub69XQ4KaIIzms5Z2LMTDShlYNRXZ6xAf4kC8gjJVmr2b5X_PZSgn14M";
+
 	@Override
 	public HttpResponse getResponse(CrawlDatum crawlDatum) throws Exception {
-		HttpResponse res = null;
-		HttpRequest request = null;
+		HttpResponse res;
+		HttpRequest request;
 		ProxyEntity proxyEntity = null;
 		try{
 			request = new HttpRequest(crawlDatum);
 			request.setMAX_REDIRECT(4);
 			setHeader(crawlDatum, request);
-			if(crawlDatum.meta("proxyEnable") != null){ //设置代理
+			//if(crawlDatum.meta("proxyEnable") != null){ //设置代理
 				proxyEntity = proxyEntityPool.getOne();
 				if(proxyEntity != null){
 					setProxy(request, proxyEntity);
@@ -52,22 +55,24 @@ public class HduRequester implements Requester, CrawlerBeginListener, CrawlerEnd
 				}else {
 					logger.error("获取不到有效的代理实体");
 				}
-			}
+			//}
 			res = request.getResponse();
 			//获取返回的google cookies信息
 			List<String> cookies = res.getHeader("Set-Cookie");
-			if(!cookies.isEmpty()){
+			if(cookies!=null && !cookies.isEmpty()){
 				for(String cookie : cookies){
 					if(cookie.startsWith("SIDCC=")){
 						logger.info("SIDCC的信息：" + cookie);
 						googleCookie_SIDCC = cookie.substring("SIDCC=".length(), cookie.indexOf(";"));
 					}else if (cookie.startsWith("1P_JAR=")) {
 						googleCookie_1P_JAR = cookie.substring("1P_JAR=".length(), cookie.indexOf(";"));
+					}else if(cookie.startsWith("NID=")){
+						googleCookie_NID = cookie.substring("NID".length(), cookie.indexOf(";"));
 					}
 				}
 			}
 		}catch (Exception e) {
-			proxyEntityPool.failProxyEntity(proxyEntity);
+			proxyEntityPool.failProxyEntity(proxyEntity, e);
 			throw e;
 		}
 		proxyEntityPool.successProxyEntity(proxyEntity);
@@ -87,10 +92,14 @@ public class HduRequester implements Requester, CrawlerBeginListener, CrawlerEnd
 		switch (crawlDatum.meta(ProcessorType.PROCESSOR_TYPE)) {
 			case ProcessorType.PROCESSOR_TYPE_GOOGLE_SEARCH:
 			case ProcessorType.PROCESSOR_TYPE_GOOGLE_SEARCH_RS:
-				String cookies = String.format(DatumConstants.GOOGLE_COOKIES, googleCookie_SIDCC, googleCookie_1P_JAR, googleCookie_GOOGLE_ABUSE_EXEMPTION);
+				String cookies = String.format(DatumConstants.GOOGLE_HK_COOKIES, googleCookie_NID, googleCookie_1P_JAR);
 				logger.info("正在使用google cookies： " + cookies);
 				request.setCookie(cookies);
-				request.setHeader("x-client-data", "CJC2yQEIpbbJAQjBtskBCKmdygEIuZ3KAQiln8oBCKijygE=");
+				request.setHeader("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8");
+				request.setHeader("accept-encoding", "utf-8");
+				request.setHeader("accept-language", "zh-CN,zh;q=0.9");
+				request.setHeader("upgrade-insecure-requests", "1");
+				request.setHeader("x-client-data", "CJa2yQEIprbJAQjBtskBCKmdygEIsp3KAQioo8oBGJKjygE=");
 				break;
 			case ProcessorType.PROCESSOR_TYPE_BAIDU_SEARCH_RS:
 				break;
@@ -146,5 +155,17 @@ public class HduRequester implements Requester, CrawlerBeginListener, CrawlerEnd
 	@Override
 	public void crawlerEnd() {
 	}
-	
+
+	/*private HttpResponse getResponseViaProxy(HttpRequest requester) throws Exception{
+		URL url = new URL(requester.getCrawlDatum().getUrl());
+		HttpResponse response = new HttpResponse(url);
+		Client client = new Client("ie");
+		try {
+			String content = client.request("https://www.bing.com");
+			response.setContent(content.getBytes("utf-8"));
+		} finally {
+			client.close();
+		}
+		return response;
+	}*/
 }

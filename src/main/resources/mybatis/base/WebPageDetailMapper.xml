@@ -8,7 +8,7 @@
     <result column="domain" property="domain" jdbcType="VARCHAR" />
     <result column="title" property="title" jdbcType="VARCHAR" />
     <result column="src" property="src" jdbcType="VARCHAR" />
-    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="create_time" property="createTime" jdbcType="VARCHAR" />
     <result column="author" property="author" jdbcType="VARCHAR" />
     <result column="keyword" property="keyword" jdbcType="VARCHAR" />
     <result column="tags" property="tags" jdbcType="VARCHAR" />
@@ -44,7 +44,7 @@
       comment_num, crawl_time, update_time
       )
     values (#{urlMd5,jdbcType=CHAR}, #{url,jdbcType=VARCHAR}, #{domain,jdbcType=VARCHAR}, 
-      #{title,jdbcType=VARCHAR}, #{src,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{title,jdbcType=VARCHAR}, #{src,jdbcType=VARCHAR}, #{createTime,jdbcType=VARCHAR},
       #{author,jdbcType=VARCHAR}, #{keyword,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR}, 
       #{content,jdbcType=VARCHAR}, #{html,jdbcType=VARCHAR}, #{viewNum,jdbcType=INTEGER}, 
       #{commentNum,jdbcType=INTEGER}, #{crawlTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
@@ -119,7 +119,7 @@
         #{src,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null" >
-        #{createTime,jdbcType=TIMESTAMP},
+        #{createTime,jdbcType=VARCHAR},
       </if>
       <if test="author != null" >
         #{author,jdbcType=VARCHAR},
@@ -169,7 +169,7 @@
         src = #{src,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null" >
-        create_time = #{createTime,jdbcType=TIMESTAMP},
+        create_time = #{createTime,jdbcType=VARCHAR},
       </if>
       <if test="author != null" >
         author = #{author,jdbcType=VARCHAR},
@@ -208,7 +208,7 @@
       domain = #{domain,jdbcType=VARCHAR},
       title = #{title,jdbcType=VARCHAR},
       src = #{src,jdbcType=VARCHAR},
-      create_time = #{createTime,jdbcType=TIMESTAMP},
+      create_time = #{createTime,jdbcType=VARCHAR},
       author = #{author,jdbcType=VARCHAR},
       keyword = #{keyword,jdbcType=VARCHAR},
       tags = #{tags,jdbcType=VARCHAR},

@@ -69,10 +69,12 @@ public class ProxyEntityPool implements CrawlerBeginListener, CrawlerEndListener
 		return null;
 	}
 
-	public void failProxyEntity(ProxyEntity entity) {
+	public void failProxyEntity(ProxyEntity entity, Exception e) {
 		if(entity != null) {
 			logger.info("error proxy: " + entity.getHost() + ":" + entity.getPort());
-			entity.setEnable(false);
+			if(e.getMessage()!=null && e.getMessage().contains("Server returned HTTP response code: 503")) {
+				entity.setEnable(false);
+			}
 		}		
 	}
 

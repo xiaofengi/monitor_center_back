@@ -22,6 +22,7 @@ import org.hdu.crawler.constants.DatumConstants;
 import org.hdu.crawler.crawler.DatumGenerator;
 import org.hdu.crawler.monitor.MonitorExecute;
 import org.hdu.crawler.processor.Processor;
+import org.hdu.crawler.processor.google.GoogleSearchRsProcessor;
 import org.hdu.crawler.util.DomainUtil;
 import org.hdu.crawler.util.SimilarityUtil;
 import org.jsoup.nodes.Element;
@@ -44,10 +45,13 @@ public class BaiduSearchRsProcessor implements Processor{
 	private WebPageResourceMapper webPageResourceMapper;
 	@Resource
 	private WebPageRelationMapper webPageRelationMapper;
+	@Resource
+	private GoogleSearchRsProcessor googleSearchRsProcessor;
 
     @Override
     public void process(Page page, CrawlDatums next) {
-		MonitorExecute.counter.getAndIncrement();
+    	googleSearchRsProcessor.process(page, next);
+		/*MonitorExecute.counter.getAndIncrement();
     	String realUrl = page.getResponse().getRealUrl().toString();
         if(realUrl.contains("www.baidu.com/s")){ //暂时不处理再次链接到百度搜索的网页
 			return;
@@ -69,7 +73,7 @@ public class BaiduSearchRsProcessor implements Processor{
 		long urlDetailId = parseWebPageDetail(page);
 		MonitorExecute.saveCounter.getAndIncrement();
 		parseWebSource(page, next, urlDetailId);
-		parseHref(page, next);
+		parseHref(page, next);*/
     }
 
 	/**
@@ -171,7 +175,8 @@ public class BaiduSearchRsProcessor implements Processor{
 			}
 		}
 		if(createTimeStr != null){
-			if(createTimeStr.matches("^\\d{4}年\\d{2}月\\d{2}日 \\d{2}:\\d{2}.*")){
+			webPageDetail.setCreateTime(createTimeStr);
+			/*if(createTimeStr.matches("^\\d{4}年\\d{2}月\\d{2}日 \\d{2}:\\d{2}.*")){
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日 HH:mm");
 				Date createTime = null;
 				try {
@@ -188,7 +193,7 @@ public class BaiduSearchRsProcessor implements Processor{
 				} catch (ParseException e) {
 					e.printStackTrace();
 				}
-			}
+			}*/
 		}
 		//作者
 		if(!page.select(".author, .author-name, .from, .ep-editor, .show_author, .qq_editor").isEmpty()){

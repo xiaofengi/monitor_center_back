@@ -15,7 +15,7 @@ public class WebPageDetail {
 
     private String src;
 
-    private Date createTime;
+    private String createTime;
 
     private String author;
 
@@ -83,11 +83,11 @@ public class WebPageDetail {
         this.src = src == null ? null : src.trim();
     }
 
-    public Date getCreateTime() {
+    public String getCreateTime() {
         return createTime;
     }
 
-    public void setCreateTime(Date createTime) {
+    public void setCreateTime(String createTime) {
         this.createTime = createTime;
     }
 
