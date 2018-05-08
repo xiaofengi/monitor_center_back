@@ -47,22 +47,21 @@ public class HduRequester implements Requester, CrawlerBeginListener, CrawlerEnd
 			request = new HttpRequest(crawlDatum);
 			request.setMAX_REDIRECT(4);
 			setHeader(crawlDatum, request);
-			//if(crawlDatum.meta("proxyEnable") != null){ //设置代理
+			if(proxyEnable && crawlDatum.meta("proxyEnable")!=null){ //设置代理
 				proxyEntity = proxyEntityPool.getOne();
 				if(proxyEntity != null){
 					setProxy(request, proxyEntity);
-					logger.info(crawlDatum.getUrl()+"使用代理"+proxyEntity.getHost()+":"+proxyEntity.getPort());
+					logger.info(crawlDatum.getUrl()+" 使用代理 "+proxyEntity.getHost()+":"+proxyEntity.getPort());
 				}else {
 					logger.error("获取不到有效的代理实体");
 				}
-			//}
+			}
 			res = request.getResponse();
 			//获取返回的google cookies信息
 			List<String> cookies = res.getHeader("Set-Cookie");
 			if(cookies!=null && !cookies.isEmpty()){
 				for(String cookie : cookies){
 					if(cookie.startsWith("SIDCC=")){
-						logger.info("SIDCC的信息：" + cookie);
 						googleCookie_SIDCC = cookie.substring("SIDCC=".length(), cookie.indexOf(";"));
 					}else if (cookie.startsWith("1P_JAR=")) {
 						googleCookie_1P_JAR = cookie.substring("1P_JAR=".length(), cookie.indexOf(";"));

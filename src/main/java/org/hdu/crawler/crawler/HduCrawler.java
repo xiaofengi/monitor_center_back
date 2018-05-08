@@ -7,6 +7,8 @@ import cn.edu.hfut.dmic.webcollector.crawldb.Generator;
 import cn.edu.hfut.dmic.webcollector.fetcher.Fetcher;
 import cn.edu.hfut.dmic.webcollector.plugin.berkeley.BerkeleyDBManager;
 import cn.edu.hfut.dmic.webcollector.util.Config;
+
+import org.hdu.crawler.constants.DatumConstants;
 import org.hdu.crawler.listener.CrawlerBeginListener;
 import org.hdu.crawler.listener.CrawlerEndListener;
 import org.hdu.crawler.monitor.MonitorExecute;
@@ -59,9 +61,9 @@ public class HduCrawler extends BreadthCrawler implements ApplicationContextAwar
 	private Map<String, CrawlerEndListener> crawlerEndListenerMap;
 	private Map<String, CrawlerBeginListener> crawlerBeginListenerMap;
 	/** 最大抓取总量 */
-	public static int count = 50000;
+	public static int count = DatumConstants.DEFAULT_COUNT;
 	/** 最大深度 */
-	private int depth = 80;
+	private int depth = DatumConstants.DEFAULT_DEPTH;
 	/** 域名列表 */
 	public static List<Map<String, Object>> domainList = null;
 	/** 限制域名类型 */
@@ -87,9 +89,14 @@ public class HduCrawler extends BreadthCrawler implements ApplicationContextAwar
 
 	@Override
 	public void execute(CrawlDatum datum, CrawlDatums next) throws Exception {
-		if(HduCrawler.count!=-1 && MonitorExecute.saveCounter.get()>=HduCrawler.count){ //数量达到上限则停止爬虫
+		if(MonitorExecute.saveCounter.get() >= HduCrawler.count){ //数量达到上限则停止爬虫
         	stop();
         }
+		if(datum.getUrl().contains("www.google.com")){ //爬取谷歌网站设置fetcher的间隔为8秒
+			fetcher.setExecuteInterval(8000);
+		}else {
+			fetcher.setExecuteInterval(executeInterval);
+		}
 		HttpResponse response = requester.getResponse(datum);
         Page page = new Page(datum, response);
         visitor.visit(page, next);
@@ -133,8 +140,8 @@ public class HduCrawler extends BreadthCrawler implements ApplicationContextAwar
         logger.info("crawler end" );
 		logger.info("爬取总时间:" + (System.currentTimeMillis()-startTime)/1000 + "秒");
 		//重置变量
-		HduCrawler.count = 50000;
-		this.depth = 80;
+		HduCrawler.count = DatumConstants.DEFAULT_COUNT;
+		this.depth = DatumConstants.DEFAULT_DEPTH;
 		HduCrawler.domainList = null;
 		HduCrawler.limitType = null;
 		HduCrawler.threshold = 1;

@@ -84,6 +84,9 @@ public class WebController extends BaseController{
     	if(StringUtils.isEmpty(subFile)){
     		return buildResult(CODE_BUSINESS_ERROR, "请选择主题文件");
     	}
+    	if((depth!=null&&depth<1) || (count!=null&&count<=1)){
+    		return buildResult(CODE_BUSINESS_ERROR, "深度或数量不能小于1");
+    	}
     	//解析主题和域名文件
     	final List<String> keywordList = new ArrayList<>();
     	final List<Map<String, Object>> domainList = new ArrayList<>();

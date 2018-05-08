@@ -74,7 +74,7 @@ public class SeedGenerator implements CrawlerBeginListener{
 			for(String keyword : keywordList){
 				for(Map<String, Object> domainInfo : domainInfoList){
 					if(domainInfo.get("location").equals("国内")){
-						for(int i=0; i<=750; i+=50){ //抓取下一页，目前百度只能搜索到350多条结果
+						for(int i=0; i<=750; i+=50){ //抓取下一页，目前百度只能搜索到760条结果
 							crawler.addSeed(datumGenerator.generateBaiduSearchList(keyword, domainInfo.get("domain").toString(), i));
 						}
 					}else {

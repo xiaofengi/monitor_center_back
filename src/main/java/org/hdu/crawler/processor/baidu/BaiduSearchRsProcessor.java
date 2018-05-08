@@ -45,13 +45,10 @@ public class BaiduSearchRsProcessor implements Processor{
 	private WebPageResourceMapper webPageResourceMapper;
 	@Resource
 	private WebPageRelationMapper webPageRelationMapper;
-	@Resource
-	private GoogleSearchRsProcessor googleSearchRsProcessor;
 
     @Override
     public void process(Page page, CrawlDatums next) {
-    	googleSearchRsProcessor.process(page, next);
-		/*MonitorExecute.counter.getAndIncrement();
+		MonitorExecute.counter.getAndIncrement();
     	String realUrl = page.getResponse().getRealUrl().toString();
         if(realUrl.contains("www.baidu.com/s")){ //暂时不处理再次链接到百度搜索的网页
 			return;
@@ -73,7 +70,7 @@ public class BaiduSearchRsProcessor implements Processor{
 		long urlDetailId = parseWebPageDetail(page);
 		MonitorExecute.saveCounter.getAndIncrement();
 		parseWebSource(page, next, urlDetailId);
-		parseHref(page, next);*/
+		parseHref(page, next);
     }
 
 	/**
