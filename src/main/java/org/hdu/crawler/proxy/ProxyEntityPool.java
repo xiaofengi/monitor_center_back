@@ -1,5 +1,6 @@
 package org.hdu.crawler.proxy;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 import javax.annotation.Resource;
@@ -49,7 +50,8 @@ public class ProxyEntityPool implements CrawlerBeginListener, CrawlerEndListener
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
-					List<ProxyEntity> proxyEntityLs = proxyEntityMapper.getNewEnables(proxyEntities.lastElement().getCreateTime());
+					Date lastMaxCreateTime = proxyEntities.isEmpty() ? new Date(0):proxyEntities.lastElement().getCreateTime();
+					List<ProxyEntity> proxyEntityLs = proxyEntityMapper.getNewEnables(lastMaxCreateTime);
 					proxyEntities.addAll(proxyEntityLs);
 				}
 			}

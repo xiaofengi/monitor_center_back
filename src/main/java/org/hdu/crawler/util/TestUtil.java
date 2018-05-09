@@ -5,18 +5,18 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.net.URL;
+import java.io.UnsupportedEncodingException;
+import java.net.*;
 import java.util.concurrent.Executor;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class TestUtil {
 
     public static void main(String[] args) {
-        System.out.println("To enable your free eval account and get "
+        /*System.out.println("To enable your free eval account and get "
                 +"CUSTOMER, YOURZONE and YOURPASS, please contact "
-                +"sales@luminati.io");
+                +"sales@luminati.io");*/
        /* HttpHost proxy = new HttpHost("zproxy.lum-superproxy.io", 22225);
         String res = Executor.newInstance()
                 .auth(proxy, "lum-customer-hl_e2d00ce2-zone-static-country-us", "qebyi23uouhr")

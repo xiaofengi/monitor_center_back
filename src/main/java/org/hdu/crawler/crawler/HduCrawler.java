@@ -2,6 +2,7 @@ package org.hdu.crawler.crawler;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import cn.edu.hfut.dmic.webcollector.crawldb.Generator;
 import cn.edu.hfut.dmic.webcollector.fetcher.Fetcher;
@@ -74,6 +75,8 @@ public class HduCrawler extends BreadthCrawler implements ApplicationContextAwar
 	public static double threshold = 1;
 	/** 当前层数 */
 	public static int nowDepth = -1;
+
+	private Random random = new Random();
 	
 	public HduCrawler(@Value("${crawler.webcollector.crawlPath}") String crawlPath, @Value("${crawler.webcollector.autoParse}") boolean autoParse) {
 		super(crawlPath, autoParse);
@@ -92,8 +95,9 @@ public class HduCrawler extends BreadthCrawler implements ApplicationContextAwar
 		if(MonitorExecute.saveCounter.get() >= HduCrawler.count){ //数量达到上限则停止爬虫
         	stop();
         }
-		if(datum.getUrl().contains("www.google.com")){ //爬取谷歌网站设置fetcher的间隔为8秒
-			fetcher.setExecuteInterval(8000);
+		if(datum.getUrl().contains("www.google.com")){ //爬取谷歌网站设置fetcher的间隔为8-10秒
+			int googleInterval = random.nextInt(2000) + 8000;
+			fetcher.setExecuteInterval(googleInterval);
 		}else {
 			fetcher.setExecuteInterval(executeInterval);
 		}

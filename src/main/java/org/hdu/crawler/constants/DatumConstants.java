@@ -51,6 +51,6 @@ public class DatumConstants {
 	public static final String GOOGLE_COOKIES = "SIDCC=%s; 1P_JAR=%s; GOOGLE_ABUSE_EXEMPTION=%s";
 	public static final String GOOGLE_HK_COOKIES = "NID=%s; 1P_JAR=%s; DV=g9BfJ1BW3qIvoPugrFVU4Mb9-avYMxZ24gV5ztaae-lZAAA";
 	
-	public static final int DEFAULT_DEPTH = 50;
-	public static final int DEFAULT_COUNT = 20000;
+	public static final int DEFAULT_DEPTH = 30;
+	public static final int DEFAULT_COUNT = 10000;
 }

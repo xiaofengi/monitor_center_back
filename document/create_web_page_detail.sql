@@ -7,7 +7,7 @@ CREATE TABLE `web_page_detail` (
   `domain` varchar(200) DEFAULT NULL,
   `title` varchar(200) DEFAULT NULL,
   `src` varchar(500) DEFAULT NULL,
-  `create_time` timestamp NULL DEFAULT NULL COMMENT '文章发表时间',
+  `create_time` varchar(50) NULL DEFAULT NULL COMMENT '文章发表时间',
   `author` varchar(200) DEFAULT NULL,
   `keyword` varchar(200) DEFAULT NULL,
   `tags` varchar(200) DEFAULT NULL,
