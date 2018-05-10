@@ -196,7 +196,7 @@ public class GoogleSearchRsProcessor implements Processor{
             int index2 = tmp.lastIndexOf("simpleText\":\"");
             if(index2 != -1){
                 viewNum = 0;
-                String viewNumStr = tmp.substring(index+"simpleText\":\"".length());
+                String viewNumStr = tmp.substring(index2+"simpleText\":\"".length());
                 String[] nums = viewNumStr.split(",");
                 for(int i=0; i<nums.length; i++){
                     String num = nums[i];
@@ -295,22 +295,29 @@ public class GoogleSearchRsProcessor implements Processor{
 
         //解析视频地址
         if(url.startsWith("https://www.youtube.com/watch?v=")){ //youtube播放地址
-            Matcher matcher = Pattern.compile("(?<=url_encoded_fmt_stream_map\":\").*(?=\",)").matcher(page.getHtml());
-            if(matcher.find()) {
-                String urlInfo = null;
-                try {
-                    urlInfo = URLDecoder.decode(matcher.group(), "utf-8");
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-                if(urlInfo == null){
+            int index = page.getHtml().indexOf("url_encoded_fmt_stream_map\":\"");
+            if(index != -1) {
+                String tmp = page.getHtml().substring(index+"url_encoded_fmt_stream_map\":\"".length());
+                String urlMapInfo = tmp.substring(0, tmp.indexOf("\","));
+                if(urlMapInfo == null){
                     return;
                 }
-                String[] videoUrlInfos = urlInfo.split(",itag=");
-                for(String videoInfo : videoUrlInfos){
-                    String videoUrl = videoInfo.substring(videoInfo.indexOf("url=")+4);
-                    WebPageResource resource = new WebPageResource(urlDetailId, url, videoUrl, DatumConstants.RESOURCE_TYPE_VIDEO, new Date());
-                    resourceLs.add(resource);
+                String[] videoUrlInfos = urlMapInfo.split(",");
+                for(String videoUrlInfo : videoUrlInfos){
+                    String[] videoUrlParams = videoUrlInfo.split("\\\\u0026");
+                    for(String videoUrlParam : videoUrlParams) {
+                        String[] paramKeyValue = videoUrlParam.split("=");
+                        if (paramKeyValue[0].equals("url")) {
+                            try {
+                                String videoUrl = URLDecoder.decode(paramKeyValue[1], "utf-8");
+                                WebPageResource resource = new WebPageResource(urlDetailId, url, videoUrl, DatumConstants.RESOURCE_TYPE_VIDEO, new Date());
+                                resourceLs.add(resource);
+                            } catch (UnsupportedEncodingException e) {
+                                e.printStackTrace();
+                            }
+                            break;
+                        }
+                    }
                 }
             }
         }

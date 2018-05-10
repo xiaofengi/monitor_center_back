@@ -148,7 +148,7 @@ public class WebController extends BaseController{
     		hduCrawler.stop();
 			return buildResult(CODE_SUCCESS, "停止爬虫成功");
     	}else {
-			return buildResult(CODE_SUCCESS, "爬虫未启动，无法停止");
+			return buildResult(CODE_BUSINESS_ERROR, "爬虫未启动，无法停止");
 		}
     }
 

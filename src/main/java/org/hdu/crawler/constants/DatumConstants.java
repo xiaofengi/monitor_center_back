@@ -39,6 +39,7 @@ public class DatumConstants {
 	public static final String CCTV_VIDEO_INTERFACE = "http://xiyou.cctv.com/interface/index?videoId=%s";
 	public static final String YOUTUBE_SEARCH_URL = "https://www.youtube.com/results?search_query=%s&pbj=1";
     public static final String YOUTUBE_PLAY_URL = "https://www.youtube.com/watch?v=%s";
+	public static final String YOUTUBE_VIDEO_INTERFACE = "http://www.youtube.com/get_video_info?video_id=%s";
     public static final String TENCENT_VIDEO_INFO = "https://h5vv.video.qq.com/getinfo?vid=%s&otype=%s&guid=%s&platform=%s&sdtfrom=%s&_qv_rmt=%s&_qv_rmt2=%s";
     public static final String FACEBOOK_PEOPLE_SEARCH__PC = "https://www.facebook.com/search/people/?q=%s";  //用户tab下
 	public static final String FACEBOOK_PEOPLE_SEARCH__MOBILE = "https://m.facebook.com/search/people/?q=%s&pn=%d"; //用户tab下

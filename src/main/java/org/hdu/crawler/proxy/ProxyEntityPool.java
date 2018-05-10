@@ -46,7 +46,7 @@ public class ProxyEntityPool implements CrawlerBeginListener, CrawlerEndListener
 			public void run() {
 				while(isDynAdd){
 					try {
-						Thread.sleep(10000);
+						Thread.sleep(5000);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
@@ -63,8 +63,8 @@ public class ProxyEntityPool implements CrawlerBeginListener, CrawlerEndListener
 	 */
 	public synchronized ProxyEntity getOne(){
 		for(int i=proxyEntities.size()-1; i>=0; i--){
-			if(proxyEntities.get(i).getEnable()){
-				//proxyEntities.get(i).setEnable(false);
+			if(proxyEntities.get(i).getEnable() && !proxyEntities.get(i).getUsing()){ //代理ip有效且没被使用
+				proxyEntities.get(i).setUsing(true);
 				return proxyEntities.get(i);
 			}
 		}
@@ -74,14 +74,16 @@ public class ProxyEntityPool implements CrawlerBeginListener, CrawlerEndListener
 	public void failProxyEntity(ProxyEntity entity, Exception e) {
 		if(entity != null) {
 			logger.info("error proxy: " + entity.getHost() + ":" + entity.getPort());
-			if(e.getMessage()!=null && e.getMessage().contains("Server returned HTTP response code: 503")) {
+			//if(e.getMessage()!=null && e.getMessage().contains("Server returned HTTP response code: 503")) {
+				entity.setUsing(false);
 				entity.setEnable(false);
-			}
+			//}
 		}		
 	}
 
 	public void successProxyEntity(ProxyEntity entity) {
-		if(entity != null) {
+		if(entity != null) { //释放
+			entity.setUsing(false);
 		}		
 	}
 	
