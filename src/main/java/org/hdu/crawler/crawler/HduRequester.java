@@ -3,16 +3,13 @@ package org.hdu.crawler.crawler;
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
-import java.net.URL;
 import java.util.List;
-
 import javax.annotation.Resource;
 import org.hdu.back.model.ProxyEntity;
 import org.hdu.crawler.constants.DatumConstants;
 import org.hdu.crawler.constants.ProcessorType;
 import org.hdu.crawler.listener.CrawlerBeginListener;
 import org.hdu.crawler.listener.CrawlerEndListener;
-import org.hdu.crawler.proxy.Client;
 import org.hdu.crawler.proxy.ProxyEntityPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

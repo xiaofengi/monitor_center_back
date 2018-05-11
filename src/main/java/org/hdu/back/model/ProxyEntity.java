@@ -9,11 +9,34 @@ public class ProxyEntity {
 
     private Integer port;
 
+    private String location;
+
+    private String type;
+
+    private String anonymousType;
+
+    private String resTime;
+
     private Boolean using;
 
     private Boolean enable;
 
     private Date createTime;
+
+    public ProxyEntity() {
+    }
+
+    public ProxyEntity(String host, Integer port, String location, String type, String anonymousType, String resTime, Boolean using, Boolean enable, Date createTime) {
+        this.host = host;
+        this.port = port;
+        this.location = location;
+        this.type = type;
+        this.anonymousType = anonymousType;
+        this.resTime = resTime;
+        this.using = using;
+        this.enable = enable;
+        this.createTime = createTime;
+    }
 
     public Integer getId() {
         return id;
@@ -37,6 +60,38 @@ public class ProxyEntity {
 
     public void setPort(Integer port) {
         this.port = port;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location == null ? null : location.trim();
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type == null ? null : type.trim();
+    }
+
+    public String getAnonymousType() {
+        return anonymousType;
+    }
+
+    public void setAnonymousType(String anonymousType) {
+        this.anonymousType = anonymousType == null ? null : anonymousType.trim();
+    }
+
+    public String getResTime() {
+        return resTime;
+    }
+
+    public void setResTime(String resTime) {
+        this.resTime = resTime == null ? null : resTime.trim();
     }
 
     public Boolean getUsing() {
