@@ -18,12 +18,12 @@ public class ProxyEntityPool implements CrawlerBeginListener, CrawlerEndListener
 	
 	private static final Logger logger = LoggerFactory.getLogger(ProxyEntityPool.class);
 	
-	@Resource
-	private ProxyEntityMapper proxyEntityMapper;
-	
 	private Vector<ProxyEntity> proxyEntities = null;
 	
 	private boolean isDynAdd = false;
+
+	@Resource
+	private ProxyEntityMapper proxyEntityMapper;
 	
 	/**
 	 * 创建代理实体池
@@ -79,6 +79,7 @@ public class ProxyEntityPool implements CrawlerBeginListener, CrawlerEndListener
 					(e.getMessage().contains("Server returned HTTP response code: 503") || e.getMessage().contains("java.net.SocketTimeoutException"))) { //被反爬或连接超时则丢弃该ip
 				entity.setUsing(false);
 				entity.setEnable(false);
+				proxyEntityMapper.updateByPrimaryKeySelective(entity);
 			}
 		}		
 	}
