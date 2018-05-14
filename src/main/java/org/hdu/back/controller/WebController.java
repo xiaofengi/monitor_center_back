@@ -7,6 +7,7 @@ import org.hdu.back.mapper.JobMsgMapper;
 import org.hdu.back.mapper.WebPageDetailMapper;
 import org.hdu.back.model.JobDaily;
 import org.hdu.back.model.JobInfo;
+import org.hdu.back.model.PageCountBean;
 import org.hdu.back.util.CmdUtil;
 import org.hdu.back.util.FileUtil;
 import org.hdu.crawler.crawler.HduCrawler;
@@ -194,13 +195,20 @@ public class WebController extends BaseController{
      */
     @RequestMapping("/getResult")
     public Map getResult(String input1, String select1, String relation1, String input2, String select2, 
-    							String relation2, String input3, String select3){
+    							String relation2, String input3, String select3, Integer pageIndex, Integer pageSize){
     	logger.info("向前端返回查询结果");
     	if(StringUtils.isEmpty(input1) && StringUtils.isEmpty(input2) && StringUtils.isEmpty(input3)){
     		return buildResult(CODE_BUSINESS_ERROR, "搜索条件请至少输入一个");
-    	}    	
+    	}
+		if(pageIndex==null || pageSize==null){
+			return buildResult(CODE_BUSINESS_ERROR, "页数或条数不能为空");
+		}
+    	if(pageIndex<1 || pageSize<10){
+			return buildResult(CODE_BUSINESS_ERROR, "页数或条数不可小于1");
+		}
+		PageCountBean pageCountBean = new PageCountBean(pageIndex, pageSize);
     	List<Map> resultList = webPageDetailMapper.getResult(input1, select1, relation1, input2, select2, 
-    																relation2, input3, select3);
-    	return buildResult("resultList", resultList);
+    																relation2, input3, select3, pageCountBean);
+    	return buildResult("resultList", resultList, pageCountBean);
     }
 }

@@ -112,7 +112,6 @@
 	        </if> 
 	    </where>
 	    group by id
-	    limit 50
   	</select>
   
 </mapper>

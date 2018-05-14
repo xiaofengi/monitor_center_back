@@ -1,5 +1,6 @@
 package org.hdu.back.controller.base;
 
+import org.hdu.back.model.PageCountBean;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -96,4 +97,28 @@ public class BaseController {
 		result.put("data", data);
 		return result;
 	}
+
+	/**
+	 * 返回分页成功数据通用方法
+	 *
+	 * @param key
+	 * @param list
+	 * @param pageCount
+	 * @return
+	 */
+	protected static Map<String, Object> buildResult(String key, Object value, PageCountBean pageCount) {
+		Map<String, Object> result = new HashMap<String, Object>();
+		result.put("code", CODE_SUCCESS);
+		result.put("msg", "");
+		Map<String, Object> data = new HashMap<String, Object>();
+		data.put(key, value);
+		if(pageCount!=null){
+			data.put("pageIndex", pageCount.getOffset() + 1);
+			data.put("pageSize", pageCount.getLimit());
+			data.put("total", pageCount.getCount());
+		}
+		result.put("data", data);
+		return result;
+	}
+
 }
