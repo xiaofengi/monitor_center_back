@@ -2,6 +2,9 @@ package org.hdu.crawler.processor.google;
 
 import cn.edu.hfut.dmic.webcollector.model.CrawlDatums;
 import cn.edu.hfut.dmic.webcollector.model.Page;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.hdu.back.mapper.WebPageDetailMapper;
 import org.hdu.back.mapper.WebPageRelationMapper;
 import org.hdu.back.mapper.WebPageResourceMapper;
@@ -14,6 +17,9 @@ import org.hdu.crawler.crawler.DatumGenerator;
 import org.hdu.crawler.monitor.MonitorExecute;
 import org.hdu.crawler.processor.Processor;
 import org.hdu.crawler.util.DomainUtil;
+import org.hdu.crawler.util.SimilarityUtil;
+import org.hdu.crawler.util.SubjectUtil;
+import org.json.JSONObject;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
@@ -25,10 +31,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,7 +51,9 @@ public class GoogleSearchRsProcessor implements Processor{
 
     @Override
     public void process(Page page, CrawlDatums next) {
-        MonitorExecute.counter.getAndIncrement();
+        List<Map<String, Object>> subject = new Gson().fromJson(page.meta("subject"), new TypeToken<List<Map<String, Object>>>(){}.getType());
+
+        MonitorExecute.counter.getAndIncrement(); //下载页面数
         String realUrl = page.getResponse().getRealUrl().toString();
         if(realUrl.contains("www.google.com/search")){ //暂时不处理再次链接到谷歌搜索的网页
             return;
@@ -56,14 +61,54 @@ public class GoogleSearchRsProcessor implements Processor{
         if(page.getHtml()==null || page.select("title").isEmpty()){ //下载失败的数据
             return;
         }
+
+        //标题
         String title = page.select("title").first().text();
-        /*if(!title.contains(page.meta("keyword"))) { //过滤与关键字不相关的网页
-            return;
-        }*/
+        if(title.equals("YouTube")){ //youtube标题需要额外获取
+            Matcher matcher = Pattern.compile("(?<=document.title = \").*(?=\";)").matcher(page.getHtml());
+            if(matcher.find()){
+                title = matcher.group();
+            }
+        }
+        boolean titleMatch = false;
+        for(Map<String, Object> keywordInfo : subject) { //根据过滤与关键字不相关的网页
+            if (title.contains(keywordInfo.get("keyword").toString())) {
+                titleMatch = true;
+                break;
+            }
+        }
+        String content = null; //内容
+        Element contentElement = null;
+        if(!titleMatch){
+            if(!page.select(".F11").isEmpty()) { //博讯
+                contentElement = page.select(".F11").first();
+                String f11Text = contentElement.text();
+                if (!page.select(".F11 center").isEmpty()) { //移去文章标题部分
+                    String centerText = page.select(".F11 center").first().text();
+                    content = f11Text.substring(centerText.length());
+                }else {
+                    content = f11Text;
+                }
+            }else if(!page.select("article").isEmpty()){
+                contentElement = page.select("article").first();
+                content = contentElement.text();
+            }else if(!page.select(".article_content, .topic-content, .main-content, .article-content-wrap, .sec_article, .post_text, .article, .Cnt-Main-Article-QQ, .yc_con_txt, .theme-content").isEmpty()){
+                contentElement = page.select(".article_content, .topic-content, .main-content, .article-content-wrap, .sec_article, .post_text, .article, .Cnt-Main-Article-QQ, .yc_con_txt, .theme-content").first();
+                content = contentElement.text();
+            }
+            if(content != null){
+                boolean contentMatch = SimilarityUtil.matchCrawl(content, subject); //根据过滤与关键字不相关的网页
+                if(!contentMatch){
+                    return;
+                }
+            }else {
+                return;
+            }
+        }
 
         List<WebPageResource> resourceLs = new LinkedList<>();
-        long urlDetailId = parseWebPageDetailAndImg(page, resourceLs);
-        MonitorExecute.saveCounter.getAndIncrement();
+        long urlDetailId = parseWebPageDetailAndImg(page, title, content, contentElement, resourceLs);
+        MonitorExecute.saveCounter.getAndIncrement(); //保存页面数
         parseVideoSource(page, urlDetailId, resourceLs);
         parseHref(page, next);
     }
@@ -73,7 +118,7 @@ public class GoogleSearchRsProcessor implements Processor{
      * @param page
      * @param next
      */
-    private long parseWebPageDetailAndImg(Page page, List<WebPageResource> resourceLs){
+    private long parseWebPageDetailAndImg(Page page, String title, String content, Element contentElement, List<WebPageResource> resourceLs){
         WebPageDetail webPageDetail = new WebPageDetail();
 
         //网页地址
@@ -85,14 +130,6 @@ public class GoogleSearchRsProcessor implements Processor{
         //域名
         String domain = page.getResponse().getRealUrl().getHost();
         webPageDetail.setDomain(domain);
-        //标题
-        String title = page.select("title").first().text();
-        if(title.equals("YouTube")){ //youtube标题需要额外获取
-            Matcher matcher = Pattern.compile("(?<=document.title = \").*(?=\";)").matcher(page.getHtml());
-            if(matcher.find()){
-                title = matcher.group();
-            }
-        }
         webPageDetail.setTitle(title);
         //文章来源
         String src = null;
@@ -163,25 +200,6 @@ public class GoogleSearchRsProcessor implements Processor{
         }
         if(tags != null) {
             webPageDetail.setTags(tags);
-        }
-        //内容
-        String content = null;
-        Element contentElement = null;
-        if(!page.select(".F11").isEmpty()) { //博讯
-            contentElement = page.select(".F11").first();
-            String f11Text = contentElement.text();
-            if (!page.select(".F11 center").isEmpty()) { //移去文章标题部分
-                String centerText = page.select(".F11 center").first().text();
-                content = f11Text.substring(centerText.length());
-            }else {
-                content = f11Text;
-            }
-        }else if(!page.select("article").isEmpty()){
-            contentElement = page.select("article").first();
-            content = contentElement.text();
-        }else if(!page.select(".article_content, .topic-content, .main-content, .article-content-wrap, .sec_article, .post_text, .article, .Cnt-Main-Article-QQ, .yc_con_txt, .theme-content").isEmpty()){
-            contentElement = page.select(".article_content, .topic-content, .main-content, .article-content-wrap, .sec_article, .post_text, .article, .Cnt-Main-Article-QQ, .yc_con_txt, .theme-content").first();
-            content = contentElement.text();
         }
         if(content != null){
             webPageDetail.setContent(content);

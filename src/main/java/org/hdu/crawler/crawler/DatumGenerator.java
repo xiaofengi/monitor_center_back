@@ -1,5 +1,6 @@
 package org.hdu.crawler.crawler;
 
+import com.google.gson.Gson;
 import org.hdu.crawler.constants.DatumConstants;
 import org.hdu.crawler.constants.ProcessorType;
 import org.hdu.crawler.entity.FbFriendsListParam;
@@ -10,6 +11,8 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.net.URLEncoder;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class DatumGenerator {
@@ -29,34 +32,39 @@ public class DatumGenerator {
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
-		return new CrawlDatum(String.format(DatumConstants.GOOGLE_HK_SEARCH_URL, wd, start))
+		return new CrawlDatum(String.format(DatumConstants.GOOGLE_SEARCH_URL, wd, start))
 				.meta(ProcessorType.PROCESSOR_TYPE, ProcessorType.PROCESSOR_TYPE_GOOGLE_SEARCH)
 				.meta("keyword", keyword)
 				.meta("start", String.valueOf(start))
-				.meta("referer", "https://www.google.com.hk/");
+				.meta("referer", "https://www.google.com");
 	}
 
 	/**
 	 * 生成谷歌搜索列表
-	 * @param keyword 搜索关键字
+	 * @param subject 搜索主题
 	 * @param domain 域名
 	 * @param start 页面数(0,50,100...)
 	 * @return
 	 */
-	public CrawlDatum generateGoogleSearchList(String keyword, String domain, int start) {
+	public CrawlDatum generateGoogleSearchList(List<Map<String, Object>> subject, String domain, int start) {
+		StringBuilder keywordPart = new StringBuilder();
+		for(Map<String, Object> keywordInfo : subject){
+			keywordPart.append(" ");
+			keywordPart.append(keywordInfo.get("keyword"));
+		}
 		String wd = null;
 		try {
-			wd = URLEncoder.encode("site:"+domain+" " + keyword, "utf-8");
+			wd = URLEncoder.encode("site:" + domain + keywordPart.toString(), "utf-8");
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
-		return new CrawlDatum(String.format(DatumConstants.GOOGLE_HK_SEARCH_URL, wd, start))
+		return new CrawlDatum(String.format(DatumConstants.GOOGLE_SEARCH_URL, wd, start))
 				.meta(ProcessorType.PROCESSOR_TYPE, ProcessorType.PROCESSOR_TYPE_GOOGLE_SEARCH)
-				.meta("keyword", keyword)
+				.meta("subject", new Gson().toJson(subject))
 				.meta("domain", domain)
 				.meta("start", String.valueOf(start))
 				.meta("proxyEnable", "true")
-				.meta("referer", "https://www.google.com.hk/");
+				.meta("referer", "https://www.google.com");
 	}
 
 	/**
@@ -67,10 +75,10 @@ public class DatumGenerator {
 	 * @param referer 引用页
 	 * @return
 	 */
-	public CrawlDatum generateGoogleSearchRs(String href, String keyword, String domain, String referer) {
+	public CrawlDatum generateGoogleSearchRs(String href, String subject, String domain, String referer) {
 		return new CrawlDatum(href)
 				.meta(ProcessorType.PROCESSOR_TYPE, ProcessorType.PROCESSOR_TYPE_GOOGLE_SEARCH_RS)
-				.meta("keyword", keyword)
+				.meta("subject", subject)
 				.meta("domain", domain)
 				.meta("referer", referer)
 				.meta("proxyEnable", "true");
@@ -97,21 +105,26 @@ public class DatumGenerator {
 	
 	/**
 	 * 生成百度搜索列表
-	 * @param keyword 搜索关键字
+	 * @param subject 搜索主题
 	 * @param domain 域名
 	 * @param pn 页面数(0,10,20,30...)
 	 * @return
 	 */
-	public CrawlDatum generateBaiduSearchList(String keyword, String domain, int pn) {
+	public CrawlDatum generateBaiduSearchList(List<Map<String, Object>> subject, String domain, int pn) {
+		StringBuilder keywordPart = new StringBuilder();
+		for(Map<String, Object> keywordInfo : subject){
+			keywordPart.append(" ");
+			keywordPart.append(keywordInfo.get("keyword"));
+		}
 		String wd = null;
 		try {
-			wd = URLEncoder.encode("site:"+domain+" " + keyword, "utf-8");
+			wd = URLEncoder.encode("site:" + domain + keywordPart.toString(), "utf-8");
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
 		return new CrawlDatum(String.format(DatumConstants.BAIDU_SEARCH_URL, wd, pn))
 				.meta(ProcessorType.PROCESSOR_TYPE, ProcessorType.PROCESSOR_TYPE_BAIDU_SEARCH)
-				.meta("keyword", keyword)
+				.meta("subject", new Gson().toJson(subject))
 				.meta("domain", domain)
 				.meta("pn", String.valueOf(pn));
 	}

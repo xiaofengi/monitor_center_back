@@ -89,17 +89,30 @@ public class WebController extends BaseController{
     		return buildResult(CODE_BUSINESS_ERROR, "深度或数量不能小于1");
     	}
     	//解析主题和域名文件
-    	final List<String> keywordList = new ArrayList<>();
+    	final List<List<Map<String, Object>>> subjectList = new ArrayList<>();
     	final List<Map<String, Object>> domainList = new ArrayList<>();
     	try {
     		String subFileEncoding = FileUtil.getEncoding(subFile.getInputStream());
     		logger.info("主题文件编码格式: " + subFileEncoding); 
 			BufferedReader subReader = new BufferedReader(new InputStreamReader(subFile.getInputStream(), subFileEncoding));
-			String keyword;
-			while((keyword=subReader.readLine()) != null){
-				logger.info("输入关键词：" + keyword.trim());
-				if(!keyword.trim().equals("")){
-					keywordList.add(keyword.trim());
+			String subjectLine;
+			while((subjectLine=subReader.readLine()) != null){
+				subjectLine = subjectLine.trim();
+				logger.info("输入主题：" + subjectLine);
+				if(!subjectLine.equals("")){
+					List<Map<String, Object>> subjectInfo = new ArrayList<>();
+					String[] keywordLines = subjectLine.split(",");
+					for(String keywordLine : keywordLines){
+						String[] keywordAndWeight = keywordLine.split(" ");
+						if(keywordAndWeight.length != 2){
+							return buildResult(CODE_BUSINESS_ERROR, "主题文件格式不正确，格式如(机器学习 4,人工智能 6");
+						}
+						Map<String, Object> keywordInfo = new HashMap<>();
+						keywordInfo.put("keyword", keywordAndWeight[0]);
+						keywordInfo.put("weight", keywordAndWeight[1]);
+						subjectInfo.add(keywordInfo);
+					}
+					subjectList.add(subjectInfo);
 				}
 			}
 			if(domainFile != null){
@@ -113,7 +126,7 @@ public class WebController extends BaseController{
 					if(!domainLine.equals("")){
 						String[] domainAndLocation = domainLine.split(" ");
 						if(domainAndLocation.length != 2){
-							return buildResult(CODE_BUSINESS_ERROR, "域名文件格式不正确，格式如www.baidu.com 国内");
+							return buildResult(CODE_BUSINESS_ERROR, "域名文件格式不正确，格式如(www.baidu.com 国内)");
 						}
 						Map<String, Object> domainInfo = new HashMap<>();
 						domainInfo.put("domain", domainAndLocation[0]);
@@ -125,14 +138,14 @@ public class WebController extends BaseController{
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-    	if(keywordList.isEmpty()){
-    		return buildResult(CODE_BUSINESS_ERROR, "主题文件中关键词为空");
+    	if(subjectList.isEmpty()){
+    		return buildResult(CODE_BUSINESS_ERROR, "主题文件中内容不可为空");
     	}
     	//在子线程中运行爬虫
     	new Thread(new Runnable() {		
 			@Override
 			public void run() {
-				hduCrawler.start(keywordList, depth, count, domainList, limitType);
+				hduCrawler.start(subjectList, depth, count, domainList, limitType);
 			}
 		}).start();
     	return buildResult(CODE_SUCCESS, "启动爬虫成功");

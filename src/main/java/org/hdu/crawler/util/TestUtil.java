@@ -4,35 +4,24 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.*;
+import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class TestUtil {
 
     public static void main(String[] args) {
-        String urlInfo = "itag=22\\u0026type=video%2Fmp4%3B+codecs%3D%22avc1.64001F%2C+mp4a.40.2%22\\u0026quality=hd720\\u0026url=https%3A%2F%2Fr5---sn-ab5l6nzk.googlevideo.com%2Fvideoplayback%3Fc%3DWEB%26id%3Do-AHWG9t2v8o7lku_A0w12t0Xa_0_8E36zBm0cO2NZxH0L%26dur%3D89.443%26signature%3DC601CEA1E4F69075DA59214C7B6C18BA7F672994.CBE7A540A8D5AD26428F84776594281964E81775%26mm%3D31%252C29%26mn%3Dsn-ab5l6nzk%252Csn-ab5sznl7%26expire%3D1525978450%26fvip%3D5%26ms%3Dau%252Crdu%26source%3Dyoutube%26mv%3Dm%26ip%3D207.246.90.158%26key%3Dyt6%26lmt%3D1518007403184966%26ipbits%3D0%26ei%3D8UD0WpuBMZmk8wTm2p-IBQ%26sparams%3Ddur%252Cei%252Cid%252Cip%252Cipbits%252Citag%252Clmt%252Cmime%252Cmm%252Cmn%252Cms%252Cmv%252Cpl%252Cratebypass%252Crequiressl%252Csource%252Cexpire%26ratebypass%3Dyes%26pl%3D25%26mime%3Dvideo%252Fmp4%26mt%3D1525956725%26itag%3D22%26requiressl%3Dyes,itag=43\\u0026type=video%2Fwebm%3B+codecs%3D%22vp8.0%2C+vorbis%22\\u0026quality=medium\\u0026url=https%3A%2F%2Fr5---sn-ab5l6nzk.googlevideo.com%2Fvideoplayback%3Fc%3DWEB%26mime%3Dvideo%252Fwebm%26signature%3DC248EA7A8A3E882C3643FA8A3E540F0E8794AD80.3923CA6AEFC9F76CCDFCA6CAEA509003E3D16F48%26ipbits%3D0%26itag%3D43%26sparams%3Dclen%252Cdur%252Cei%252Cgir%252Cid%252Cip%252Cipbits%252Citag%252Clmt%252Cmime%252Cmm%252Cmn%252Cms%252Cmv%252Cpl%252Cratebypass%252Crequiressl%252Csource%252Cexpire%26ratebypass%3Dyes%26requiressl%3Dyes%26id%3Do-AHWG9t2v8o7lku_A0w12t0Xa_0_8E36zBm0cO2NZxH0L%26dur%3D0.000%26mm%3D31%252C29%26mn%3Dsn-ab5l6nzk%252Csn-ab5sznl7%26fvip%3D5%26ms%3Dau%252Crdu%26source%3Dyoutube%26mv%3Dm%26ip%3D207.246.90.158%26key%3Dyt6%26lmt%3D1518008461453955%26ei%3D8UD0WpuBMZmk8wTm2p-IBQ%26pl%3D25%26gir%3Dyes%26mt%3D1525956725%26expire%3D1525978450%26clen%3D8182509,itag=18\\u0026type=video%2Fmp4%3B+codecs%3D%22avc1.42001E%2C+mp4a.40.2%22\\u0026quality=medium\\u0026url=https%3A%2F%2Fr5---sn-ab5l6nzk.googlevideo.com%2Fvideoplayback%3Fc%3DWEB%26mime%3Dvideo%252Fmp4%26signature%3D8B5B3B632CCADBC7A41848569F7D9925EEAD6071.2D0821AADA5D95AE0DA405AFBC260DF8DA65886E%26ipbits%3D0%26itag%3D18%26sparams%3Dclen%252Cdur%252Cei%252Cgir%252Cid%252Cip%252Cipbits%252Citag%252Clmt%252Cmime%252Cmm%252Cmn%252Cms%252Cmv%252Cpl%252Cratebypass%252Crequiressl%252Csource%252Cexpire%26ratebypass%3Dyes%26requiressl%3Dyes%26id%3Do-AHWG9t2v8o7lku_A0w12t0Xa_0_8E36zBm0cO2NZxH0L%26dur%3D89.443%26mm%3D31%252C29%26mn%3Dsn-ab5l6nzk%252Csn-ab5sznl7%26fvip%3D5%26ms%3Dau%252Crdu%26source%3Dyoutube%26mv%3Dm%26ip%3D207.246.90.158%26key%3Dyt6%26lmt%3D1518006883882291%26ei%3D8UD0WpuBMZmk8wTm2p-IBQ%26pl%3D25%26gir%3Dyes%26mt%3D1525956725%26expire%3D1525978450%26clen%3D7830794,itag=36\\u0026type=video%2F3gpp%3B+codecs%3D%22mp4v.20.3%2C+mp4a.40.2%22\\u0026quality=small\\u0026url=https%3A%2F%2Fr5---sn-ab5l6nzk.googlevideo.com%2Fvideoplayback%3Fc%3DWEB%26id%3Do-AHWG9t2v8o7lku_A0w12t0Xa_0_8E36zBm0cO2NZxH0L%26dur%3D89.489%26signature%3D08CD720F3C025661E1C596DE593D30DCD14F12AB.60937B35D4976EDDF348D3EC25836946D5A42113%26mm%3D31%252C29%26mn%3Dsn-ab5l6nzk%252Csn-ab5sznl7%26fvip%3D5%26ms%3Dau%252Crdu%26source%3Dyoutube%26mv%3Dm%26itag%3D36%26ip%3D207.246.90.158%26key%3Dyt6%26lmt%3D1518006884480831%26ipbits%3D0%26ei%3D8UD0WpuBMZmk8wTm2p-IBQ%26sparams%3Dclen%252Cdur%252Cei%252Cgir%252Cid%252Cip%252Cipbits%252Citag%252Clmt%252Cmime%252Cmm%252Cmn%252Cms%252Cmv%252Cpl%252Crequiressl%252Csource%252Cexpire%26pl%3D25%26gir%3Dyes%26mime%3Dvideo%252F3gpp%26mt%3D1525956725%26expire%3D1525978450%26clen%3D2502323%26requiressl%3Dyes,itag=17\\u0026type=video%2F3gpp%3B+codecs%3D%22mp4v.20.3%2C+mp4a.40.2%22\\u0026quality=small\\u0026url=https%3A%2F%2Fr5---sn-ab5l6nzk.googlevideo.com%2Fvideoplayback%3Fc%3DWEB%26id%3Do-AHWG9t2v8o7lku_A0w12t0Xa_0_8E36zBm0cO2NZxH0L%26dur%3D89.489%26signature%3DC76B71530247EAD20F1875E01E28FF8919C99F36.C5E534EF92EDA92590D2387ABA69932AB6110CBE%26mm%3D31%252C29%26mn%3Dsn-ab5l6nzk%252Csn-ab5sznl7%26fvip%3D5%26ms%3Dau%252Crdu%26source%3Dyoutube%26mv%3Dm%26itag%3D17%26ip%3D207.246.90.158%26key%3Dyt6%26lmt%3D1518006887786111%26ipbits%3D0%26ei%3D8UD0WpuBMZmk8wTm2p-IBQ%26sparams%3Dclen%252Cdur%252Cei%252Cgir%252Cid%252Cip%252Cipbits%252Citag%252Clmt%252Cmime%252Cmm%252Cmn%252Cms%252Cmv%252Cpl%252Crequiressl%252Csource%252Cexpire%26pl%3D25%26gir%3Dyes%26mime%3Dvideo%252F3gpp%26mt%3D1525956725%26expire%3D1525978450%26clen%3D929744%26requiressl%3Dyes";
-        String[] videoUrlInfos = urlInfo.split(",");
-        for(String videoUrlInfo : videoUrlInfos) {
-            /*try {
-                videoUrlInfo = URLDecoder.decode(videoUrlInfo, "utf-8");
-                System.out.println(videoUrlInfo);
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }*/
-            String[] videoUrlParams = videoUrlInfo.split("\\\\u0026");
-            for(String videoUrlParam : videoUrlParams){
-                String[] paramKeyValue = videoUrlParam.split("=");
-                if(paramKeyValue[0].equals("url")) {
-                    try {
-                        String videoUrl = URLDecoder.decode(paramKeyValue[1], "utf-8");
-                        System.out.println(videoUrl);
-/*                        String[] params = videoUrl.split("&");
-                        for(String param : params){
-                            System.out.println(param);
-                        }*/
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-                }
+        String resultStats = "找到约 1,320,000 条结果";
+        try {
+            Matcher matcher = Pattern.compile("(?<=找到约).*(?=条结果)").matcher(resultStats);
+            if(matcher.find()){
+                String numText = matcher.group().trim();
+                DecimalFormat df = new DecimalFormat(",###,##0");
+                System.out.println(df.parse(numText).longValue());
             }
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
     }
 

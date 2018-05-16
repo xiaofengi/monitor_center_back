@@ -64,9 +64,6 @@ public class BaiduSearchRsProcessor implements Processor{
 		if(!title.contains(page.meta("keyword"))) { //过滤与关键字不相关的网页
 			return;
 		}
-		if(!SimilarityUtil.matchCrawl(page.getHtml())){ //计算网页相关度，小于阈值则不爬取
-			return;
-		}
 		long urlDetailId = parseWebPageDetail(page);
 		MonitorExecute.saveCounter.getAndIncrement();
 		parseWebSource(page, next, urlDetailId);

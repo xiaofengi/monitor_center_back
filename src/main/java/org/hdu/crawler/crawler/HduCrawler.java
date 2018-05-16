@@ -14,6 +14,7 @@ import org.hdu.crawler.listener.CrawlerBeginListener;
 import org.hdu.crawler.listener.CrawlerEndListener;
 import org.hdu.crawler.monitor.MonitorExecute;
 import org.hdu.crawler.processor.manager.ProcessorManager;
+import org.hdu.crawler.util.SubjectUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -72,7 +73,7 @@ public class HduCrawler extends BreadthCrawler implements ApplicationContextAwar
 	/** 是否已启动爬虫 */
 	public static boolean isStart = false;
 	/** 分值阈值,大于该阈值则爬取网页，暂定1 **/
-	public static double threshold = 1;
+	public static double threshold = 0.05;
 	/** 当前层数 */
 	public static int nowDepth = -1;
 
@@ -106,7 +107,7 @@ public class HduCrawler extends BreadthCrawler implements ApplicationContextAwar
         visitor.visit(page, next);
 	}
 	
-	public void start(List<String> keywordList, Integer depth, Integer count, List<Map<String, Object>> domainList, String limitType) {
+	public void start(List<List<Map<String, Object>>> subjectList, Integer depth, Integer count, List<Map<String, Object>> domainList, String limitType) {
 		long startTime = System.currentTimeMillis();
 		if(depth != null){
 			this.depth = depth;
@@ -121,13 +122,15 @@ public class HduCrawler extends BreadthCrawler implements ApplicationContextAwar
 		if(!resumable){
 			this.seeds.clear(); //清空种子列表
 		}
-		seedGenerator.addSeed(this, keywordList, domainList);
 		this.setRequester(hduRequester);
 		logger.info("crawler start");
 		notifyBeginCrawler();
 		logger.info("request start");
 		HduCrawler.isStart = true; //标记爬虫已启动
+
 		try {
+			SubjectUtil.setKeywordIdf(subjectList);
+			seedGenerator.addSeed(this, subjectList, domainList);
 			setResumable(resumable);
 			setTopN(topN);
 			setThreads(threads);
@@ -135,6 +138,7 @@ public class HduCrawler extends BreadthCrawler implements ApplicationContextAwar
 			start(this.depth);
 		} catch (Exception e) {
 			logger.error(e.getMessage());
+			e.printStackTrace();
 		}
 		logger.info("爬取总量：" + MonitorExecute.counter.get());
 		logger.info("入库总量：" + MonitorExecute.saveCounter.get());
@@ -246,4 +250,5 @@ public class HduCrawler extends BreadthCrawler implements ApplicationContextAwar
 		crawlerBeginListenerMap = applicationContext.getBeansOfType(CrawlerBeginListener.class);
 		crawlerEndListenerMap = applicationContext.getBeansOfType(CrawlerEndListener.class);
 	}
+
 }

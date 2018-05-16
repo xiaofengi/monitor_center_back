@@ -57,9 +57,12 @@ public static void main(String[] args) throws Exception {
 		URLConnection connection = localURL.openConnection();
 		HttpURLConnection httpURLConnection = (HttpURLConnection) connection;
 
-		httpURLConnection.setRequestProperty("Accept-Charset", "GBK");
-//		httpURLConnection.setRequestProperty("Content-Type",
-//				"application/x-www-form-urlencoded");
+		httpURLConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
+		httpURLConnection.setRequestProperty("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8");
+		httpURLConnection.setRequestProperty("accept-encoding", "utf-8");
+		httpURLConnection.setRequestProperty("accept-language", "zh-CN,zh;q=0.9");
+		httpURLConnection.setRequestProperty("upgrade-insecure-requests", "1");
+		httpURLConnection.setRequestProperty("x-client-data", "CJa2yQEIprbJAQjBtskBCKmdygEIsp3KAQioo8oBGJKjygE=");
 
 		InputStream inputStream = null;
 		InputStreamReader inputStreamReader = null;

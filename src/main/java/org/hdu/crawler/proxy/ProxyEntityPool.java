@@ -76,7 +76,7 @@ public class ProxyEntityPool implements CrawlerBeginListener, CrawlerEndListener
 		if(entity != null) {
 			logger.info("error proxy: " + entity.getHost() + ":" + entity.getPort());
 			if(e.getMessage()!=null &&
-					(e.getMessage().contains("Server returned HTTP response code: 503") || e.getMessage().contains("connect timed out"))) { //被反爬或连接超时则丢弃该ip
+					(e.getMessage().contains("Server returned HTTP response code: 503") || e.getMessage().contains("connect timed out") || e.getMessage().contains("Connection refused: connect"))) { //被反爬或连接超时则丢弃该ip
 				entity.setUsing(false);
 				entity.setEnable(false);
 				proxyEntityMapper.updateByPrimaryKeySelective(entity);

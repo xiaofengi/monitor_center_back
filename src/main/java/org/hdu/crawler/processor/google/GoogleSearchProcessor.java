@@ -25,7 +25,7 @@ public class GoogleSearchProcessor implements Processor{
             return;
         }
         int size = 0;
-        Elements gs = page.select(".srg").first().getElementsByClass("g");
+        Elements gs = page.select(".srg .g");
         for(Element g : gs){
             Element a = g.getElementsByTag("a").first();
             if(a == null){
@@ -33,7 +33,7 @@ public class GoogleSearchProcessor implements Processor{
             }
             String href = a.attr("href");
             if(href!=null && href.startsWith("http")){
-                next.add(datumGenerator.generateGoogleSearchRs(href, page.meta("keyword"), page.meta("domain"), null));
+                next.add(datumGenerator.generateGoogleSearchRs(href, page.meta("subject"), page.meta("domain"), null));
             }else {
                 logger.error("取不到链接：" + href);
             }

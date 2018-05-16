@@ -32,7 +32,7 @@
     </selectKey>
     insert into proxy_entity (host, port, location, 
       type, anonymous_type, res_time, 
-      using, enable, create_time
+      `using`, enable, create_time
       )
     values (#{host,jdbcType=VARCHAR}, #{port,jdbcType=INTEGER}, #{location,jdbcType=VARCHAR}, 
       #{type,jdbcType=VARCHAR}, #{anonymousType,jdbcType=VARCHAR}, #{resTime,jdbcType=VARCHAR}, 
@@ -64,7 +64,7 @@
         res_time,
       </if>
       <if test="using != null" >
-        using,
+        `using`,
       </if>
       <if test="enable != null" >
         enable,
@@ -125,7 +125,7 @@
         res_time = #{resTime,jdbcType=VARCHAR},
       </if>
       <if test="using != null" >
-        using = #{using,jdbcType=BIT},
+        `using` = #{using,jdbcType=BIT},
       </if>
       <if test="enable != null" >
         enable = #{enable,jdbcType=BIT},
@@ -144,7 +144,7 @@
       type = #{type,jdbcType=VARCHAR},
       anonymous_type = #{anonymousType,jdbcType=VARCHAR},
       res_time = #{resTime,jdbcType=VARCHAR},
-      using = #{using,jdbcType=BIT},
+      `using` = #{using,jdbcType=BIT},
       enable = #{enable,jdbcType=BIT},
       create_time = #{createTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=INTEGER}
