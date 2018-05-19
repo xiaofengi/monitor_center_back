@@ -4,7 +4,6 @@ import cn.edu.hfut.dmic.webcollector.model.CrawlDatums;
 import cn.edu.hfut.dmic.webcollector.model.Page;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.hdu.back.mapper.WebPageDetailMapper;
 import org.hdu.back.mapper.WebPageRelationMapper;
 import org.hdu.back.mapper.WebPageResourceMapper;
@@ -18,8 +17,6 @@ import org.hdu.crawler.monitor.MonitorExecute;
 import org.hdu.crawler.processor.Processor;
 import org.hdu.crawler.util.DomainUtil;
 import org.hdu.crawler.util.SimilarityUtil;
-import org.hdu.crawler.util.SubjectUtil;
-import org.json.JSONObject;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
@@ -149,7 +146,7 @@ public class GoogleSearchRsProcessor implements Processor{
             String f11Text = page.select(".F11").first().text();
             if(f11Text.contains("来源：")){
                 String tmp = f11Text.substring(f11Text.indexOf("来源："));
-                int index = tmp.indexOf("&nbsp;")!=-1 ? tmp.indexOf("&nbsp;"):tmp.indexOf("\n")!=-1?tmp.indexOf("\n"):5;
+                int index = tmp.indexOf(" ")!=-1 ? tmp.indexOf(" "):7;
                 src = tmp.substring(3, index);
             }
         }
@@ -164,8 +161,8 @@ public class GoogleSearchRsProcessor implements Processor{
             createTimeStr = tmp.substring(tmp.lastIndexOf("simpleText\":\"") + "simpleText\":\"".length());
         }else if(!page.select(".F11 center font small").isEmpty()){ //博讯
             String tmp = page.select(".F11 center font small").first().text();
-            if(tmp.indexOf("博讯北京时间") != -1){
-                createTimeStr = tmp.substring(tmp.indexOf("博讯北京时间")+6);
+            if(tmp.indexOf("年")!=-1 && tmp.indexOf("日")!=-1){
+                createTimeStr = tmp.substring(tmp.indexOf("年")-4, tmp.indexOf("日")+1);
             }
         }else if(!page.select(".time, .utime, .time, .date, .a_time").isEmpty()){
             createTimeStr = page.select(".time, .utime, .time, .date, .a_time").first().text();

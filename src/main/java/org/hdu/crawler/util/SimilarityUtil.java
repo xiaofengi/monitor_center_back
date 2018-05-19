@@ -7,14 +7,7 @@ import org.ansj.splitWord.analysis.*;
 import org.hdu.crawler.crawler.HduCrawler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.*;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class SimilarityUtil {
 

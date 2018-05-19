@@ -1,10 +1,6 @@
 package org.hdu.crawler.crawler;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
 import java.util.*;
-
 import org.hdu.crawler.constants.CrawlerType;
 import org.hdu.crawler.constants.DatumConstants;
 import org.hdu.crawler.entity.FbFriendsListParam;
