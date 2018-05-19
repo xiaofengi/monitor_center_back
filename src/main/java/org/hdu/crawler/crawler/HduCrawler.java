@@ -72,8 +72,8 @@ public class HduCrawler extends BreadthCrawler implements ApplicationContextAwar
 	public static String limitType = null;
 	/** 是否已启动爬虫 */
 	public static boolean isStart = false;
-	/** 分值阈值,大于该阈值则爬取网页，暂定1 **/
-	public static double threshold = 0.05;
+	/** 分值阈值,大于该阈值则爬取网页 **/
+	public static double threshold = 0.3;
 	/** 当前层数 */
 	public static int nowDepth = -1;
 

@@ -31,7 +31,7 @@ public class HduRequester implements Requester, CrawlerBeginListener, CrawlerEnd
 	private ProxyEntityPool proxyEntityPool;
 	
 	private String googleCookie_SIDCC = "AEfoLebltNyVi1Y6LMsy0zEqbwxgo1UcKEV4EWBSLivlPZUjrUskom86qjGxeJTVMN9K56NecdA";
-	private String googleCookie_1P_JAR = "2018-5-15-9";
+	private String googleCookie_1P_JAR = "2018-5-16-9";
 	private String googleCookie_GOOGLE_ABUSE_EXEMPTION = "ID=44d35cbd808c35db:TM=1525582439:C=r:IP=207.246.90.158-:S=APGng0v5A9maN9Jbjk-2QQpa-cd9NqY0jA";
 	private String googleCookie_NID = "130=IyEdpcu3TePv0_3m8cFyb_uCbOHD-Ejd69RU1zxJtfeBw4HoRzcbltYPkNB1UlhEnnie0FNyhuPtCLDWZVpfBuVryIDcV0jGURBXjWDX1VyYaevOuNJm0fdkjiZSVXE25U-9a4qZlBn0r0vRCXBS1Mmzd0mQMaWu6lm8lh9yR7uzbXAJ5Bfyl1Gf8PydEhMqIXDXMQbWaL9aeg";
 
@@ -87,7 +87,6 @@ public class HduRequester implements Requester, CrawlerBeginListener, CrawlerEnd
 		}
 		switch (crawlDatum.meta(ProcessorType.PROCESSOR_TYPE)) {
 			case ProcessorType.PROCESSOR_TYPE_GOOGLE_SEARCH:
-			case ProcessorType.PROCESSOR_TYPE_GOOGLE_SEARCH_RS:
 				String cookies = String.format(DatumConstants.GOOGLE_HK_COOKIES, googleCookie_NID, googleCookie_1P_JAR);
 				logger.info("正在使用google cookies： " + cookies);
 				request.setCookie(cookies);
@@ -97,19 +96,12 @@ public class HduRequester implements Requester, CrawlerBeginListener, CrawlerEnd
 				request.setHeader("upgrade-insecure-requests", "1");
 				request.setHeader("x-client-data", "CJa2yQEIprbJAQjBtskBCKmdygEIsp3KAQioo8oBGJKjygE=");
 				break;
-			case ProcessorType.PROCESSOR_TYPE_BAIDU_SEARCH_RS:
-				break;
 			case ProcessorType.PROCESSOR_TYPE_BAIDU_VIDEO_SEARCH:
-				//request.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36");
 				request.setHeader("Host", "v.baidu.com");
 				request.setHeader("Referer", "http://v.baidu.com/v");
 				request.setCookie("BIDUPSID=165A3B8D1F93219D14C0B4A8138AEF6A; PSTM=1503732400; __cfduid=db0db3f162e9aee15f3eb36abaa675d1f1508568007; BAIDUID=17956543C27BB1FA4E9D7A458BC3F00C:FG=1; MCITY=-%3A; d_ad_beforeplay_today_num=6; H_PS_PSSID=1460_19033_21122; BDORZ=FFFB88E999055A3F8A630C64834BD6D0; BDRCVFR[X7WRLt7HYof]=mk3SLVN4HKm; PSINO=5; bdv_right_ad_poster=1; BUBBLESDEl=1");
 				break;
-			case ProcessorType.PROCESSOR_TYPE_PLAY_PAGE:
-				//request.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36");
-				break;
 			case ProcessorType.PROCESSOR_TYPE_YOUTUBE_LIST:
-				//request.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36");
 				request.setCookie("VISITOR_INFO1_LIVE=EzJV7E3gjr0; SID=NAVMifB-wvRZg_XV7HICBT67GT1tKvBQUCq2xskgMTVQhC6LKJaR3apM_949e0lBDSBPtw.; HSID=A_6HcDLRBttV-fEHi; SSID=AteEO8zoelTmY0_4b; APISID=qMYD0zY0RxQ3EqPO/AxuY5BI-_YHQrrbIj; SAPISID=y35kNgi8LP2Nt-yZ/AUY00eUQzGh8jj00y; CONSENT=YES+CN.zh-CN+20170903-09-0; LOGIN_INFO=ACn9GHowRAIgBQH-LEMv1Nuq0klFnwOnmBCHn37kMJb9FnVHiNunlC4CIGVb_ifU0HQK_oJXMSS75NjmyTjp7cD-BB_IAA1E5fMJ:QUxJMndvR2lObFpQdEhQUktfY2hyZ25mOHN2LTZHS0JFWjQzWDNEdXl6dUpMSXFJX24tZDZyVUVrSmt1RnpUUXVERVF6bFZ1S09KOE1yQUkxMVNBVjc0NXN6N1EyTmtDTmVaZi1zUEpyUV9DcDEzQTFySEEta1V2TE5xZTl3dUpsT1d0RVRac1FtLUJ0UkZyVkVwZ3NOMnZZLVVZLXNDbFc0djZ2V3FFUklfVGJ4WHZrYk5pMXBn; PREF=f1=50000000&al=zh-CN; YSC=kaqiTayd01Q; ST-1i14npa=oq=%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD&gs_l=youtube.3..0i12k1l10.51203.55934.0.56253.20.17.2.0.0.0.730.7059.3-11j1j2j2.16.0....0...1ac.4.64.youtube..5.15.6012...0.0.GAHewAixluE&feature=web-masthead-search&itct=CCoQ7VAiEwimh7_A4JHaAhUHx8EKHZmgDX8ojh4%3D&csn=ofm8WuayG4eOhwaZwbb4Bw");
 				request.setHeader("referer", " https://www.youtube.com/");
 				request.addHeader("x-client-data", "CIS2yQEIpbbJAQjEtskBCKmdygEIqKPKAQ==");

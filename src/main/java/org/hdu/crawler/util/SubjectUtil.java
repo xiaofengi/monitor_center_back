@@ -4,6 +4,8 @@ import org.hdu.crawler.constants.DatumConstants;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URLEncoder;
 import java.text.DecimalFormat;
@@ -13,6 +15,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SubjectUtil {
+
+    private static final Logger logger = LoggerFactory.getLogger(SubjectUtil.class);
 
     /**
      * 获取关键词的idf
@@ -27,7 +31,7 @@ public class SubjectUtil {
                 String keyword = keywordInfo.get("keyword").toString();
                 long keywordWebpageNum = getWebpageNum(keyword);
                 double idf = Math.log(totalWebpageNum/(keywordWebpageNum+1));
-                System.out.println(keyword + "的idf：" + idf);
+                logger.info(keyword + "的idf：" + idf);
                 keywordInfo.put("idf", idf);
             }
         }
