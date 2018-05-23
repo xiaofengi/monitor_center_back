@@ -74,7 +74,7 @@ public class SeedGenerator implements CrawlerBeginListener{
 							crawler.addSeed(datumGenerator.generateBaiduSearchList(subject, domainInfo.get("domain").toString(), i));
 						}
 					}else {
-						for(int i=0; i<=30; i+=10){ //抓取下一页，目前谷歌只能搜索到390多条结果
+						for(int i=0; i<=390; i+=10){ //抓取下一页，目前谷歌只能搜索到390多条结果
 							crawler.addSeed(datumGenerator.generateGoogleSearchList(subject, domainInfo.get("domain").toString(), i));
 						}
 					}
